@@ -9,7 +9,7 @@ import Link from "next/link";
 
 export default function Home() {
   const rules = [
-    "Teams must consist of 1-3 members",
+    "Teams must consist of 1-4 members",
     "Students must bring their laptop",
     "All code must be original and created during the event",
     "Use of external APIs and libraries is allowed",
