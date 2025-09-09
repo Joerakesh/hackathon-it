@@ -117,7 +117,7 @@ export default function Home() {
                   />
                 ),
                 title: "Venue",
-                main: "College Campus",
+                main: "Sail Hall",
                 sub: "St. Joseph's College",
               },
               {
