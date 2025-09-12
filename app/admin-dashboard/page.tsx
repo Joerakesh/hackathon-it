@@ -435,9 +435,10 @@ export default function AdminDashboard() {
                                                                     <Phone size={14} className="inline mr-1" />
                                                                     Phone
                                                                 </p>
-                                                                <p className="text-white">
-                                                                    {team.teamLeader.phoneNumber}
-                                                                </p>
+                                                                <a href={`tel:+91${team.teamLeader.phoneNumber}`}>
+                                                                    <p className="text-white">{team.teamLeader.phoneNumber}</p>
+                                                                </a>
+
                                                             </div>
                                                         </div>
                                                         <div>
