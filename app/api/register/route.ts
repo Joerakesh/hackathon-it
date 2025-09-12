@@ -47,11 +47,15 @@ export async function POST(req: Request) {
     }
 
     // 3. Generate Team ID
-    const lastTeam = await Team.findOne().sort({ createdAt: -1 });
+    const teams = await Team.find({}, "teamId").sort({ teamId: 1 });
+    const usedNumbers = teams
+      .map((t) => parseInt(t.teamId.replace("HIT", ""), 10))
+      .filter((n) => !isNaN(n))
+      .sort((a, b) => a - b);
     let nextNumber = 101;
-    if (lastTeam?.teamId) {
-      const lastNumber = parseInt(lastTeam.teamId.replace("HIT", ""), 10);
-      if (!isNaN(lastNumber)) nextNumber = lastNumber + 1;
+    for (let i = 0; i < usedNumbers.length; i++) {
+      if (usedNumbers[i] !== nextNumber) break;
+      nextNumber++;
     }
     const newTeamId = `HIT${nextNumber}`;
 
@@ -121,17 +125,53 @@ Website: https://jwstechnologies.com
 `,
 
       html: `
-<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: auto; padding: 24px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px;">
-  <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 20px;">
-    <h1 style="color: #111827; margin: 0;">🎉 Registration Confirmed!</h1>
-    <p style="color: #6b7280; margin: 6px 0 0; font-size: 14px;">Hackathon 2025 • St. Joseph's College</p>
+<div
+  style="
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 650px;
+    margin: auto;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+  "
+>
+  <div
+    style="
+      text-align: center;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    "
+  >
+    <div style="display: flex; justify-content: center; align-items: center">
+      <img src="https://hackathon.jwstechnologies.com/sjc-logo.png" alt="" width="90px" height="90px" />
+
+      <h1 style="color: #111827; margin-left: 5px; margin-right: 12px">
+        Registration Confirmed!
+      </h1>
+    </div>
+    <p style="color: #6b7280; margin: 6px 0 0; font-size: 14px">
+      Hackathon 2025 • St. Joseph's College
+    </p>
   </div>
 
-  <div style="color: #111827; font-size: 15px; line-height: 1.6;">
+  <div style="color: #111827; font-size: 15px; line-height: 1.6">
     <p>Hi <strong>${data.teamLeader.name}</strong>,</p>
-    <p>Your team of <strong>${finalTeamSize}</strong> has been successfully registered for Hackathon 2025 🚀</p>
+    <p>
+      Your team of <strong>${finalTeamSize}</strong> has been successfully
+      registered for Hackathon 2025 🚀
+    </p>
 
-    <p style="background-color: #fffbeb; color: #b45309; padding: 10px 15px; border-radius: 8px; font-weight: bold;">
+    <p
+      style="
+        background-color: #fffbeb;
+        color: #b45309;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+      "
+    >
       💳 Payment Pending: ₹${paymentAmount}
     </p>
 
@@ -142,56 +182,108 @@ Website: https://jwstechnologies.com
       <li><strong>Transaction Reference / Note:</strong> ${newTeamId}</li>
     </ul>
 
-    <p style="text-align:center; margin:20px 0;">
-      <strong>Or simply scan this QR Code from GPay or Any other UPI app:</strong><br/>
-      
-           <img src="cid:qrCodeImage" alt="UPI QR Code" />
+    <p style="text-align: center; margin: 20px 0">
+      <strong
+        >Or simply scan this QR Code from GPay or Any other UPI app:</strong
+      ><br />
 
+      <img src="cid:qrCodeImage" alt="UPI QR Code" />
     </p>
 
     <h3>👥 Team Details</h3>
     <ul>
-      <li><strong>Leader:</strong> ${data.teamLeader.name}, ${
+      <li>
+        <strong>Leader:</strong> ${data.teamLeader.name}, ${
         data.teamLeader.college
-      }, ${data.teamLeader.city}, ${data.teamLeader.phoneNumber}, ${
-        data.teamLeader.email
-      }</li>
+      }, ${data.teamLeader.city},
+        ${data.teamLeader.phoneNumber}, ${data.teamLeader.email}
+      </li>
       ${data.teamMembers
         .map(
-          (m: TeamMember, i: number) =>
-            `<li><strong>Member ${i + 1}:</strong> ${m.name}, ${m.email}, ${
-              m.phoneNumber
-            }</li>`
+          (m: TeamMember, i: number) => `
+      <li>
+        <strong>Member ${i + 1}:</strong> ${m.name}, ${m.email}, ${
+            m.phoneNumber
+          }
+      </li>
+      `
         )
         .join("")}
     </ul>
 
-    <p>📅 Event Date: 16th September 2025<br/>
-    ⏰ Reporting Time: Before 8:45 AM<br/>
-    📍 Venue: Sail Hall, St. Joseph's College</p>
+    <p>
+      📅 Event Date: 16th September 2025<br />
+      ⏰ Reporting Time: Before 8:45 AM<br />
+      📍 Venue: Sail Hall, St. Joseph's College
+    </p>
 
-    <p style="background-color:#fef2f2; color:#991b1b; padding:10px 15px; border-radius:8px; font-weight:bold;">
+    <p
+      style="
+        background-color: #fef2f2;
+        color: #991b1b;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+      "
+    >
       ⚠️ Important: Students must bring their laptop.
     </p>
 
-    <p style="text-align:center; margin: 25px 0;">
-      <a href="https://hackathon.jwstechnologies.com/login" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">
+    <p style="text-align: center; margin: 25px 0">
+      <a
+        href="https://hackathon.jwstechnologies.com/login"
+        target="_blank"
+        style="
+          background-color: #2563eb;
+          color: #ffffff;
+          padding: 12px 24px;
+          border-radius: 8px;
+          text-decoration: none;
+          font-weight: bold;
+          display: inline-block;
+        "
+      >
         Login to Dashboard
       </a>
     </p>
 
-    <p>For support, call: <a href="tel:+916385266784" style="color: #2563eb; text-decoration: none;">+91 6385266784</a></p>
+    <p>
+      For support, call:
+      <a href="tel:+916385266784" style="color: #2563eb; text-decoration: none"
+        >+91 6385266784</a
+      >
+    </p>
   </div>
 
-  <div style="text-align: center; padding: 15px; border-top: 1px solid #e0e0e0; color: #6b7280; font-size: 15px; margin-top: 20px;">
-    © 2025 Hackathon Team | <a href="https://jwstechnologies.com" target="_blank" style="color: #2563eb; text-decoration: none;">JWS Technologies – Technical Support</a>
+  <div
+    style="
+      text-align: center;
+      padding: 15px;
+      border-top: 1px solid #e0e0e0;
+      color: #6b7280;
+      font-size: 15px;
+      margin-top: 20px;
+    "
+  >
+    © 2025 Hackathon Team
+    <br />
+    <div style="display: flex; justify-content: center; align-items: center">
+      <img src="https://hackathon.jwstechnologies.com/jws_logo.png" alt="" width="50px" height="auto" />
+      <a
+        href="https://jwstechnologies.com"
+        target="_blank"
+        style="color: #2563eb; text-decoration: none; margin-left: 10px"
+        >JWS Technologies – Technical Support</a
+      >
+    </div>
   </div>
 </div>
+
 `,
       attachments: [
         {
           content: qrCodeBase64,
-          filename: "qrcode.png",
+          filename: `${newTeamId}_payment_qr.png`,
           type: "image/png",
           disposition: "inline",
           content_id: "qrCodeImage", // same as cid above
@@ -199,7 +291,7 @@ Website: https://jwstechnologies.com
       ],
     };
 
-    await sgMail.send(msg);
+    // await sgMail.send(msg);
 
     return NextResponse.json(
       { message: "✅ Registration successful!", teamId: newTeam.teamId },
