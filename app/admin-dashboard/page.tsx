@@ -3,7 +3,21 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, MapPin, Phone, Mail, Pencil, Trash2, Users, CreditCard, Search, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import {
+    User,
+    MapPin,
+    Phone,
+    Mail,
+    Pencil,
+    Trash2,
+    Users,
+    CreditCard,
+    Search,
+    Filter,
+    X,
+    ChevronDown,
+    ChevronUp,
+} from "lucide-react";
 
 interface TeamMember {
     _id: string;
@@ -30,6 +44,7 @@ interface TeamData {
         status: "pending" | "approved" | "rejected";
         updatedAt: string;
     };
+    createdAt: Date;
 }
 
 export default function AdminDashboard() {
@@ -40,7 +55,9 @@ export default function AdminDashboard() {
     const [editingTeam, setEditingTeam] = useState<TeamData | null>(null);
     const [formData, setFormData] = useState<TeamData | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
+    const [statusFilter, setStatusFilter] = useState<
+        "all" | "pending" | "approved" | "rejected"
+    >("all");
     const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
 
     // Preload form when opening edit
@@ -56,20 +73,22 @@ export default function AdminDashboard() {
 
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
-            result = result.filter(team =>
-                team.teamLeader.name.toLowerCase().includes(term) ||
-                team.teamId.toLowerCase().includes(term) ||
-                team.teamLeader.email.toLowerCase().includes(term) ||
-                team.teamLeader.phoneNumber.includes(term) ||
-                team.teamMembers.some(member =>
-                    member.name.toLowerCase().includes(term) ||
-                    member.email.toLowerCase().includes(term)
-                )
+            result = result.filter(
+                (team) =>
+                    team.teamLeader.name.toLowerCase().includes(term) ||
+                    team.teamId.toLowerCase().includes(term) ||
+                    team.teamLeader.email.toLowerCase().includes(term) ||
+                    team.teamLeader.phoneNumber.includes(term) ||
+                    team.teamMembers.some(
+                        (member) =>
+                            member.name.toLowerCase().includes(term) ||
+                            member.email.toLowerCase().includes(term)
+                    )
             );
         }
 
         if (statusFilter !== "all") {
-            result = result.filter(team => team.payment.status === statusFilter);
+            result = result.filter((team) => team.payment.status === statusFilter);
         }
 
         setFilteredTeams(result);
@@ -161,12 +180,27 @@ export default function AdminDashboard() {
         setExpandedTeams(newExpanded);
     };
 
+    const teamCreatedAt = (createdAt: Date) => {
+        return new Date(createdAt).toLocaleString(undefined, {
+            hour12: true,
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+        });
+    };
+
     const getStatusColor = (status: string) => {
         switch (status) {
-            case "pending": return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
-            case "approved": return "bg-green-500/20 text-green-300 border-green-500/30";
-            case "rejected": return "bg-red-500/20 text-red-300 border-red-500/30";
-            default: return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+            case "pending":
+                return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
+            case "approved":
+                return "bg-green-500/20 text-green-300 border-green-500/30";
+            case "rejected":
+                return "bg-red-500/20 text-red-300 border-red-500/30";
+            default:
+                return "bg-gray-500/20 text-gray-300 border-gray-500/30";
         }
     };
 
@@ -188,14 +222,19 @@ export default function AdminDashboard() {
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent mb-2">
                         Team Administration
                     </h1>
-                    <p className="text-gray-400">Manage all registered teams and their payment status</p>
+                    <p className="text-gray-400">
+                        Manage all registered teams and their payment status
+                    </p>
                 </header>
 
                 {/* Filters and Search */}
                 <div className="bg-[#121218] rounded-xl p-4 mb-6 border border-gray-800/50 shadow-lg">
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
+                            <Search
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                size={20}
+                            />
                             <input
                                 type="text"
                                 placeholder="Search teams by name, ID, email or phone..."
@@ -219,7 +258,13 @@ export default function AdminDashboard() {
                                     className="appearance-none bg-[#0D0D12] border border-gray-800 rounded-lg py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/30"
                                     value={statusFilter}
                                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                                        setStatusFilter(e.target.value as "all" | "pending" | "approved" | "rejected")
+                                        setStatusFilter(
+                                            e.target.value as
+                                            | "all"
+                                            | "pending"
+                                            | "approved"
+                                            | "rejected"
+                                        )
                                     }
                                 >
                                     <option value="all">All Statuses</option>
@@ -227,7 +272,10 @@ export default function AdminDashboard() {
                                     <option value="approved">Approved</option>
                                     <option value="rejected">Rejected</option>
                                 </select>
-                                <Filter className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" size={18} />
+                                <Filter
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
+                                    size={18}
+                                />
                             </div>
                         </div>
                     </div>
@@ -241,15 +289,21 @@ export default function AdminDashboard() {
                     </div>
                     <div className="bg-[#121218] p-4 rounded-xl border border-gray-800/50">
                         <div className="text-gray-400 text-sm">Pending Payments</div>
-                        <div className="text-2xl font-bold text-yellow-400">{teams.filter(t => t.payment.status === "pending").length}</div>
+                        <div className="text-2xl font-bold text-yellow-400">
+                            {teams.filter((t) => t.payment.status === "pending").length}
+                        </div>
                     </div>
                     <div className="bg-[#121218] p-4 rounded-xl border border-gray-800/50">
                         <div className="text-gray-400 text-sm">Approved Payments</div>
-                        <div className="text-2xl font-bold text-green-400">{teams.filter(t => t.payment.status === "approved").length}</div>
+                        <div className="text-2xl font-bold text-green-400">
+                            {teams.filter((t) => t.payment.status === "approved").length}
+                        </div>
                     </div>
                     <div className="bg-[#121218] p-4 rounded-xl border border-gray-800/50">
                         <div className="text-gray-400 text-sm">Rejected Payments</div>
-                        <div className="text-2xl font-bold text-red-400">{teams.filter(t => t.payment.status === "rejected").length}</div>
+                        <div className="text-2xl font-bold text-red-400">
+                            {teams.filter((t) => t.payment.status === "rejected").length}
+                        </div>
                     </div>
                 </div>
 
@@ -258,12 +312,19 @@ export default function AdminDashboard() {
                     {filteredTeams.length === 0 ? (
                         <div className="text-center py-12 bg-[#121218] rounded-xl border border-gray-800/50">
                             <Users className="mx-auto text-gray-600 mb-3" size={48} />
-                            <h3 className="text-lg font-medium text-gray-400">No teams found</h3>
-                            <p className="text-gray-600 mt-1">Try adjusting your search or filter criteria</p>
+                            <h3 className="text-lg font-medium text-gray-400">
+                                No teams found
+                            </h3>
+                            <p className="text-gray-600 mt-1">
+                                Try adjusting your search or filter criteria
+                            </p>
                         </div>
                     ) : (
                         filteredTeams.map((team) => (
-                            <Card key={team._id} className="bg-[#121218] border-gray-800/50 overflow-hidden transition-all hover:border-purple-500/30">
+                            <Card
+                                key={team._id}
+                                className="bg-[#121218] border-gray-800/50 overflow-hidden transition-all hover:border-purple-500/30"
+                            >
                                 <CardContent className="p-0">
                                     {/* Team Header */}
                                     <div className="p-4 sm:p-6 border-b border-gray-800/50">
@@ -273,16 +334,23 @@ export default function AdminDashboard() {
                                                     <h2 className="text-xl font-semibold text-white">
                                                         {team.teamLeader.name}&#39;s Team
                                                     </h2>
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(team.payment.status)}`}>
+                                                    <span
+                                                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                                                            team.payment.status
+                                                        )}`}
+                                                    >
                                                         {team.payment.status.toUpperCase()}
                                                     </span>
                                                 </div>
                                                 <div className="text-gray-400 flex items-center gap-2">
-                                                    <span className="font-mono text-sm">{team.teamId}</span>
+                                                    <span className="font-mono text-sm">
+                                                        {team.teamId}
+                                                    </span>
                                                     <span className="text-gray-600">•</span>
                                                     <span className="text-sm flex items-center gap-1">
                                                         <Users size={14} />
-                                                        {team.teamLeader.teamSize} member{team.teamLeader.teamSize !== 1 ? 's' : ''}
+                                                        {team.teamLeader.teamSize} member
+                                                        {team.teamLeader.teamSize !== 1 ? "s" : ""}
                                                     </span>
                                                 </div>
                                             </div>
@@ -339,11 +407,18 @@ export default function AdminDashboard() {
                                                     <div className="space-y-3">
                                                         <div>
                                                             <p className="text-sm text-gray-400">Name</p>
-                                                            <p className="text-white">{team.teamLeader.name}</p>
+                                                            <p className="text-white">
+                                                                {team.teamLeader.name}
+                                                            </p>
                                                         </div>
                                                         <div>
-                                                            <p className="text-sm text-gray-400">College & Department</p>
-                                                            <p className="text-white">{team.teamLeader.college}, {team.teamLeader.department}</p>
+                                                            <p className="text-sm text-gray-400">
+                                                                College & Department
+                                                            </p>
+                                                            <p className="text-white">
+                                                                {team.teamLeader.college},{" "}
+                                                                {team.teamLeader.department}
+                                                            </p>
                                                         </div>
                                                         <div className="flex items-center gap-4">
                                                             <div>
@@ -351,14 +426,18 @@ export default function AdminDashboard() {
                                                                     <MapPin size={14} className="inline mr-1" />
                                                                     City
                                                                 </p>
-                                                                <p className="text-white">{team.teamLeader.city}</p>
+                                                                <p className="text-white">
+                                                                    {team.teamLeader.city}
+                                                                </p>
                                                             </div>
                                                             <div>
                                                                 <p className="text-sm text-gray-400">
                                                                     <Phone size={14} className="inline mr-1" />
                                                                     Phone
                                                                 </p>
-                                                                <p className="text-white">{team.teamLeader.phoneNumber}</p>
+                                                                <p className="text-white">
+                                                                    {team.teamLeader.phoneNumber}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                         <div>
@@ -366,8 +445,13 @@ export default function AdminDashboard() {
                                                                 <Mail size={14} className="inline mr-1" />
                                                                 Email
                                                             </p>
-                                                            <p className="text-white break-all">{team.teamLeader.email}</p>
+                                                            <p className="text-white break-all">
+                                                                {team.teamLeader.email}
+                                                            </p>
                                                         </div>
+                                                        <p className="text-sm text-gray-500 mt-1">
+                                                            Registered at:  {teamCreatedAt(team.createdAt)}
+                                                        </p>
                                                     </div>
                                                 </div>
 
@@ -380,12 +464,21 @@ export default function AdminDashboard() {
                                                     {team.teamMembers.length > 0 ? (
                                                         <div className="space-y-3">
                                                             {team.teamMembers.map((member, idx) => (
-                                                                <div key={member._id} className="bg-[#121218] p-3 rounded-lg border border-gray-800/30">
+                                                                <div
+                                                                    key={member._id}
+                                                                    className="bg-[#121218] p-3 rounded-lg border border-gray-800/30"
+                                                                >
                                                                     <div className="flex justify-between items-start">
                                                                         <div>
-                                                                            <p className="text-white font-medium">{member.name}</p>
-                                                                            <p className="text-sm text-gray-400">{member.email}</p>
-                                                                            <p className="text-sm text-gray-400">{member.phoneNumber}</p>
+                                                                            <p className="text-white font-medium">
+                                                                                {member.name}
+                                                                            </p>
+                                                                            <p className="text-sm text-gray-400">
+                                                                                {member.email}
+                                                                            </p>
+                                                                            <p className="text-sm text-gray-400">
+                                                                                {member.phoneNumber}
+                                                                            </p>
                                                                         </div>
                                                                         <span className="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded">
                                                                             Member {idx + 1}
@@ -395,7 +488,9 @@ export default function AdminDashboard() {
                                                             ))}
                                                         </div>
                                                     ) : (
-                                                        <p className="text-gray-500 italic">No team members added</p>
+                                                        <p className="text-gray-500 italic">
+                                                            No team members added
+                                                        </p>
                                                     )}
                                                 </div>
                                             </div>
@@ -409,16 +504,24 @@ export default function AdminDashboard() {
                                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                                     <div>
                                                         <p className="text-sm text-gray-400">Amount</p>
-                                                        <p className="text-white text-xl font-semibold">₹{team.payment.amount}</p>
-                                                        <p className="text-sm text-gray-500 mt-1">
-                                                            Last updated: {new Date(team.payment.updatedAt).toLocaleDateString()}
+                                                        <p className="text-white text-xl font-semibold">
+                                                            ₹{team.payment.amount}
                                                         </p>
+                                                        <p className="text-sm text-gray-500 mt-1">
+                                                            Last updated:{" "}
+                                                            {new Date(
+                                                                team.payment.updatedAt
+                                                            ).toLocaleDateString()}
+                                                        </p>
+
                                                     </div>
 
                                                     {team.payment.status === "pending" && (
                                                         <div className="flex gap-3">
                                                             <Button
-                                                                onClick={() => handlePayment(team._id, "approve")}
+                                                                onClick={() =>
+                                                                    handlePayment(team._id, "approve")
+                                                                }
                                                                 className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg"
                                                                 disabled={actionLoading === team._id}
                                                             >
@@ -429,7 +532,9 @@ export default function AdminDashboard() {
                                                                 )}
                                                             </Button>
                                                             <Button
-                                                                onClick={() => handlePayment(team._id, "reject")}
+                                                                onClick={() =>
+                                                                    handlePayment(team._id, "reject")
+                                                                }
                                                                 className="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg"
                                                                 disabled={actionLoading === team._id}
                                                             >
@@ -469,10 +574,14 @@ export default function AdminDashboard() {
 
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="text-lg font-medium text-white mb-3">Team Leader</h3>
+                                    <h3 className="text-lg font-medium text-white mb-3">
+                                        Team Leader
+                                    </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm text-gray-400 mb-1">Name</label>
+                                            <label className="block text-sm text-gray-400 mb-1">
+                                                Name
+                                            </label>
                                             <input
                                                 className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                                 value={formData.teamLeader?.name || ""}
@@ -488,7 +597,9 @@ export default function AdminDashboard() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm text-gray-400 mb-1">College</label>
+                                            <label className="block text-sm text-gray-400 mb-1">
+                                                College
+                                            </label>
                                             <input
                                                 className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                                 value={formData.teamLeader?.college || ""}
@@ -504,7 +615,9 @@ export default function AdminDashboard() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm text-gray-400 mb-1">Department</label>
+                                            <label className="block text-sm text-gray-400 mb-1">
+                                                Department
+                                            </label>
                                             <input
                                                 className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                                 value={formData.teamLeader?.department || ""}
@@ -520,7 +633,9 @@ export default function AdminDashboard() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm text-gray-400 mb-1">City</label>
+                                            <label className="block text-sm text-gray-400 mb-1">
+                                                City
+                                            </label>
                                             <input
                                                 className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                                 value={formData.teamLeader?.city || ""}
@@ -536,7 +651,9 @@ export default function AdminDashboard() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm text-gray-400 mb-1">Phone</label>
+                                            <label className="block text-sm text-gray-400 mb-1">
+                                                Phone
+                                            </label>
                                             <input
                                                 className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                                 value={formData.teamLeader?.phoneNumber || ""}
@@ -552,7 +669,9 @@ export default function AdminDashboard() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm text-gray-400 mb-1">Email</label>
+                                            <label className="block text-sm text-gray-400 mb-1">
+                                                Email
+                                            </label>
                                             <input
                                                 className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                                 value={formData.teamLeader?.email || ""}
@@ -571,60 +690,75 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <div>
-                                    <h3 className="text-lg font-medium text-white mb-3">Team Members</h3>
+                                    <h3 className="text-lg font-medium text-white mb-3">
+                                        Team Members
+                                    </h3>
                                     <div className="space-y-4">
-                                        {formData.teamMembers?.map((member: TeamMember, idx: number) => (
-                                            <div key={member._id || idx} className="bg-[#0D0D12] p-4 rounded-lg border border-gray-700">
-                                                <h4 className="text-gray-400 mb-2">Member {idx + 1}</h4>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-sm text-gray-400 mb-1">Name</label>
-                                                        <input
-                                                            className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                            value={member.name || ""}
-                                                            onChange={(e) => {
-                                                                const newMembers = [...formData.teamMembers];
-                                                                newMembers[idx].name = e.target.value;
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    teamMembers: newMembers,
-                                                                });
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm text-gray-400 mb-1">Email</label>
-                                                        <input
-                                                            className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                            value={member.email || ""}
-                                                            onChange={(e) => {
-                                                                const newMembers = [...formData.teamMembers];
-                                                                newMembers[idx].email = e.target.value;
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    teamMembers: newMembers,
-                                                                });
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm text-gray-400 mb-1">Phone</label>
-                                                        <input
-                                                            className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                            value={member.phoneNumber || ""}
-                                                            onChange={(e) => {
-                                                                const newMembers = [...formData.teamMembers];
-                                                                newMembers[idx].phoneNumber = e.target.value;
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    teamMembers: newMembers,
-                                                                });
-                                                            }}
-                                                        />
+                                        {formData.teamMembers?.map(
+                                            (member: TeamMember, idx: number) => (
+                                                <div
+                                                    key={member._id || idx}
+                                                    className="bg-[#0D0D12] p-4 rounded-lg border border-gray-700"
+                                                >
+                                                    <h4 className="text-gray-400 mb-2">
+                                                        Member {idx + 1}
+                                                    </h4>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-sm text-gray-400 mb-1">
+                                                                Name
+                                                            </label>
+                                                            <input
+                                                                className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                                value={member.name || ""}
+                                                                onChange={(e) => {
+                                                                    const newMembers = [...formData.teamMembers];
+                                                                    newMembers[idx].name = e.target.value;
+                                                                    setFormData({
+                                                                        ...formData,
+                                                                        teamMembers: newMembers,
+                                                                    });
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm text-gray-400 mb-1">
+                                                                Email
+                                                            </label>
+                                                            <input
+                                                                className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                                value={member.email || ""}
+                                                                onChange={(e) => {
+                                                                    const newMembers = [...formData.teamMembers];
+                                                                    newMembers[idx].email = e.target.value;
+                                                                    setFormData({
+                                                                        ...formData,
+                                                                        teamMembers: newMembers,
+                                                                    });
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm text-gray-400 mb-1">
+                                                                Phone
+                                                            </label>
+                                                            <input
+                                                                className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                                value={member.phoneNumber || ""}
+                                                                onChange={(e) => {
+                                                                    const newMembers = [...formData.teamMembers];
+                                                                    newMembers[idx].phoneNumber = e.target.value;
+                                                                    setFormData({
+                                                                        ...formData,
+                                                                        teamMembers: newMembers,
+                                                                    });
+                                                                }}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            )
+                                        )}
                                     </div>
                                 </div>
                             </div>
