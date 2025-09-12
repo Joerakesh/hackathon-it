@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-// import bcrypt from "bcryptjs";
 import sgMail from "@sendgrid/mail";
 import { connect } from "@/dbconfig/db";
 import Team from "@/models/team.model";
-// import QRCode from "qrcode";
+import QRCode from "qrcode";
 
 // Set SendGrid API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
@@ -62,7 +61,7 @@ export async function POST(req: Request) {
       teamId: newTeamId,
       teamLeader: {
         ...leader,
-        password: password, // Hash the password
+        password: password, // TODO: hash before saving
         teamSize: finalTeamSize,
       },
       teamMembers: data.teamMembers || [],
@@ -76,10 +75,25 @@ export async function POST(req: Request) {
 
     await newTeam.save();
 
-    // 6. Prepare email
+    // 5. Generate QR code as buffer
     const paymentAmount = finalTeamSize * 200;
     const upiId = "rakeshjoe52@oksbi";
+    const upiUrl = `upi://pay?pa=${upiId}&pn=Rakesh%20Joe&am=${paymentAmount}&cu=INR&tn=${newTeamId}`;
 
+    // Generate QR code as buffer instead of data URL
+    const qrCodeBuffer = await QRCode.toBuffer(upiUrl, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: "#000000",
+        light: "#ffffff",
+      },
+    });
+
+    // Convert buffer to base64 for embedding
+    const qrCodeBase64 = qrCodeBuffer.toString("base64");
+
+    // 6. Prepare email with embedded image
     const msg = {
       to: data.teamLeader.email,
       from: process.env.SENDGRID_FROM_EMAIL as string,
@@ -88,37 +102,24 @@ export async function POST(req: Request) {
 
 Your team of ${finalTeamSize} has been successfully registered for Hackathon 2025.
 
-💳 Payment Pending: ₹${paymentAmount}
-
-Please complete the payment using any UPI app:
+Payment Pending: ₹${paymentAmount}
 
 UPI ID: ${upiId}
 Amount: ₹${paymentAmount}
 Transaction Reference / Note: ${newTeamId}
 
-Once payment is complete, your registration will be confirmed.
-
-Team Details:
-Leader: ${data.teamLeader.name}, ${data.teamLeader.college}, ${
-        data.teamLeader.city
-      }, ${data.teamLeader.phoneNumber}, ${data.teamLeader.email}
-Members:
-${data.teamMembers
-  .map(
-    (m: TeamMember, i: number) =>
-      `Member ${i + 1}: ${m.name}, ${m.email}, ${m.phoneNumber}`
-  ) // ✅ Added types
-  .join("\n")}
+Or scan the QR code attached in the email.
 
 Event Date: 16th September 2025
 Reporting Time: Before 8:45 AM
 Venue: Sail Hall, St. Joseph's College
 
-⚠️ Important: Students must bring their laptop.
+Important: Students must bring their laptop.
 
 For support, contact: +91 6385266784
 Website: https://jwstechnologies.com
 `,
+
       html: `
 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 650px; margin: auto; padding: 24px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px;">
   <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 20px;">
@@ -141,6 +142,13 @@ Website: https://jwstechnologies.com
       <li><strong>Transaction Reference / Note:</strong> ${newTeamId}</li>
     </ul>
 
+    <p style="text-align:center; margin:20px 0;">
+      <strong>Or simply scan this QR Code from GPay or Any other UPI app:</strong><br/>
+      
+           <img src="cid:qrCodeImage" alt="UPI QR Code" />
+
+    </p>
+
     <h3>👥 Team Details</h3>
     <ul>
       <li><strong>Leader:</strong> ${data.teamLeader.name}, ${
@@ -150,10 +158,7 @@ Website: https://jwstechnologies.com
       }</li>
       ${data.teamMembers
         .map(
-          (
-            m: TeamMember,
-            i: number // ✅ Added types
-          ) =>
+          (m: TeamMember, i: number) =>
             `<li><strong>Member ${i + 1}:</strong> ${m.name}, ${m.email}, ${
               m.phoneNumber
             }</li>`
@@ -183,6 +188,15 @@ Website: https://jwstechnologies.com
   </div>
 </div>
 `,
+      attachments: [
+        {
+          content: qrCodeBase64,
+          filename: "qrcode.png",
+          type: "image/png",
+          disposition: "inline",
+          content_id: "qrCodeImage", // same as cid above
+        },
+      ],
     };
 
     await sgMail.send(msg);
