@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import {
     // Menu,
     // X,
 } from "lucide-react";
+import QRCode from "qrcode";
 
 interface TeamMember {
     _id: string,
@@ -58,6 +59,8 @@ export default function Dashboard() {
     const [notices, setNotices] = useState<Notice[]>([]);
     const [editing, setEditing] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [qrCode, setQrCode] = useState<string | null>(null);
+
     const [authError, setAuthError] = useState<string | null>(null);
     // const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [formData, setFormData] = useState<{
@@ -73,6 +76,30 @@ export default function Dashboard() {
         city: "",
         college: "",
     });
+
+    useEffect(() => {
+        if (!team) return;
+
+        const generateQR = async () => {
+            try {
+                const paymentAmount = (team.teamMembers.length + 1) * 200;
+                const upiUrl = `upi://pay?pa=rakeshjoe52@oksbi&pn=Rakesh%20Joe&am=${paymentAmount}&cu=INR&tn=${team.teamId}`;
+
+                const qr = await QRCode.toDataURL(upiUrl, {
+                    width: 200,
+                    margin: 1,
+                    color: { dark: "#000000", light: "#ffffff" },
+                });
+
+                setQrCode(qr);
+            } catch (err) {
+                console.error("❌ Error generating QR:", err);
+            }
+        };
+
+        generateQR();
+    }, [team]);
+
 
     // ===== Fetch team =====
     useEffect(() => {
@@ -180,6 +207,19 @@ export default function Dashboard() {
             </div>
         );
     }
+
+    // const paymentAmount = team.teamLeader.teamSize * 200;
+    // const upiId = "rakeshjoe52@oksbi";
+    // const upiUrl = `upi://pay?pa=${upiId}&pn=Rakesh%20Joe&am=${paymentAmount}&cu=INR&tn=${team.teamId}`;
+    // const qrCodeBuffer = await QRCode.toBuffer(upiUrl, {
+    //     width: 200,
+    //     margin: 1,
+    //     color: {
+    //         dark: "#000000",
+    //         light: "#ffffff",
+    //     },
+    // });
+
 
     return (
         <div className="min-h-screen bg-[#0c0c0f] text-gray-200 font-mono">
@@ -332,13 +372,27 @@ export default function Dashboard() {
 
                                 {/* Show GPay button only if payment pending */}
                                 {team.payment?.status === "pending" && (
-                                    <a
-                                        href={`upi://pay?pa=rakeshjoe52@oksbi&pn=Rakesh%20Joe&am=${(team.teamMembers.length + 1) * 200}&cu=INR&tn=${team.teamId}`}
-                                        className="bg-purple-700 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm sm:text-base"
-                                    >
-                                        Pay via GPay
-                                    </a>
+                                    <div className="flex flex-col items-center gap-3">
+                                        {/* <a
+                                            href={`upi://pay?pa=rakeshjoe52@oksbi&pn=Rakesh%20Joe&am=${(team.teamMembers.length + 1) * 200}&cu=INR&tn=${team.teamId}`}
+                                            className="bg-purple-700 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm sm:text-base"
+                                        >
+                                            Pay via GPay
+                                        </a> */}
+
+                                        {qrCode && (
+                                            <Image
+                                                src={qrCode}
+                                                alt="UPI QR Code"
+                                                width={200}
+                                                height={200}
+                                                unoptimized
+                                                className="rounded-md border border-purple-700"
+                                            />
+                                        )}
+                                    </div>
                                 )}
+
 
                                 {/* Retry button if rejected */}
                                 {team.payment?.status === "rejected" && (
