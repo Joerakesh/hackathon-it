@@ -137,6 +137,10 @@ export default function AdminDashboard() {
         fetchTeams();
     }, []);
 
+    const totalStudents = teams.reduce((total, team) => {
+        return total + team.teamLeader.teamSize;
+    }, 0);
+
     const handleSaveEdit = async () => {
         if (!editingTeam || !formData) return;
 
@@ -353,12 +357,13 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                     <div className="bg-[#121218] p-4 rounded-xl border border-gray-800/50">
-                        <div className="text-gray-400 text-sm">Rejected Payments</div>
-                        <div className="text-2xl font-bold text-red-400">
-                            {teams.filter((t) => t.payment.status === "rejected").length}
+                        <div className="text-gray-400 text-sm">Total Students</div>
+                        <div className="text-2xl font-bold text-blue-400">
+                            {totalStudents}
                         </div>
                     </div>
                 </div>
+
 
                 {/* Teams List */}
                 <div className="space-y-4">
@@ -658,231 +663,233 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Edit Modal */}
-                {editingTeam && formData && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50 p-4">
-                        <div className="bg-[#121218] p-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-700">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-white">
-                                    Edit Team - {editingTeam.teamId}
-                                </h2>
-                                <button
-                                    onClick={() => setEditingTeam(null)}
-                                    className="text-gray-400 hover:text-white"
-                                >
-                                    <X size={24} />
-                                </button>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div>
-                                    <h3 className="text-lg font-medium text-white mb-3">
-                                        Team Leader
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm text-gray-400 mb-1">
-                                                Name
-                                            </label>
-                                            <input
-                                                className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.teamLeader?.name || ""}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        teamLeader: {
-                                                            ...formData.teamLeader,
-                                                            name: e.target.value,
-                                                        },
-                                                    })
-                                                }
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-400 mb-1">
-                                                College
-                                            </label>
-                                            <input
-                                                className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.teamLeader?.college || ""}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        teamLeader: {
-                                                            ...formData.teamLeader,
-                                                            college: e.target.value,
-                                                        },
-                                                    })
-                                                }
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-400 mb-1">
-                                                Department
-                                            </label>
-                                            <input
-                                                className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.teamLeader?.department || ""}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        teamLeader: {
-                                                            ...formData.teamLeader,
-                                                            department: e.target.value,
-                                                        },
-                                                    })
-                                                }
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-400 mb-1">
-                                                City
-                                            </label>
-                                            <input
-                                                className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.teamLeader?.city || ""}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        teamLeader: {
-                                                            ...formData.teamLeader,
-                                                            city: e.target.value,
-                                                        },
-                                                    })
-                                                }
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-400 mb-1">
-                                                Phone
-                                            </label>
-                                            <input
-                                                className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.teamLeader?.phoneNumber || ""}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        teamLeader: {
-                                                            ...formData.teamLeader,
-                                                            phoneNumber: e.target.value,
-                                                        },
-                                                    })
-                                                }
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-400 mb-1">
-                                                Email
-                                            </label>
-                                            <input
-                                                className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.teamLeader?.email || ""}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        teamLeader: {
-                                                            ...formData.teamLeader,
-                                                            email: e.target.value,
-                                                        },
-                                                    })
-                                                }
-                                            />
-                                        </div>
-                                    </div>
+                {
+                    editingTeam && formData && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50 p-4">
+                            <div className="bg-[#121218] p-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-700">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-xl font-bold text-white">
+                                        Edit Team - {editingTeam.teamId}
+                                    </h2>
+                                    <button
+                                        onClick={() => setEditingTeam(null)}
+                                        className="text-gray-400 hover:text-white"
+                                    >
+                                        <X size={24} />
+                                    </button>
                                 </div>
 
-                                <div>
-                                    <h3 className="text-lg font-medium text-white mb-3">
-                                        Team Members
-                                    </h3>
-                                    <div className="space-y-4">
-                                        {formData.teamMembers?.map(
-                                            (member: TeamMember, idx: number) => (
-                                                <div
-                                                    key={member._id || idx}
-                                                    className="bg-[#0D0D12] p-4 rounded-lg border border-gray-700"
-                                                >
-                                                    <h4 className="text-gray-400 mb-2">
-                                                        Member {idx + 1}
-                                                    </h4>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div>
-                                                            <label className="block text-sm text-gray-400 mb-1">
-                                                                Name
-                                                            </label>
-                                                            <input
-                                                                className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                                value={member.name || ""}
-                                                                onChange={(e) => {
-                                                                    const newMembers = [...formData.teamMembers];
-                                                                    newMembers[idx].name = e.target.value;
-                                                                    setFormData({
-                                                                        ...formData,
-                                                                        teamMembers: newMembers,
-                                                                    });
-                                                                }}
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm text-gray-400 mb-1">
-                                                                Email
-                                                            </label>
-                                                            <input
-                                                                className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                                value={member.email || ""}
-                                                                onChange={(e) => {
-                                                                    const newMembers = [...formData.teamMembers];
-                                                                    newMembers[idx].email = e.target.value;
-                                                                    setFormData({
-                                                                        ...formData,
-                                                                        teamMembers: newMembers,
-                                                                    });
-                                                                }}
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm text-gray-400 mb-1">
-                                                                Phone
-                                                            </label>
-                                                            <input
-                                                                className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                                value={member.phoneNumber || ""}
-                                                                onChange={(e) => {
-                                                                    const newMembers = [...formData.teamMembers];
-                                                                    newMembers[idx].phoneNumber = e.target.value;
-                                                                    setFormData({
-                                                                        ...formData,
-                                                                        teamMembers: newMembers,
-                                                                    });
-                                                                }}
-                                                            />
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="text-lg font-medium text-white mb-3">
+                                            Team Leader
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm text-gray-400 mb-1">
+                                                    Name
+                                                </label>
+                                                <input
+                                                    className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    value={formData.teamLeader?.name || ""}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            teamLeader: {
+                                                                ...formData.teamLeader,
+                                                                name: e.target.value,
+                                                            },
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm text-gray-400 mb-1">
+                                                    College
+                                                </label>
+                                                <input
+                                                    className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    value={formData.teamLeader?.college || ""}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            teamLeader: {
+                                                                ...formData.teamLeader,
+                                                                college: e.target.value,
+                                                            },
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm text-gray-400 mb-1">
+                                                    Department
+                                                </label>
+                                                <input
+                                                    className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    value={formData.teamLeader?.department || ""}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            teamLeader: {
+                                                                ...formData.teamLeader,
+                                                                department: e.target.value,
+                                                            },
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm text-gray-400 mb-1">
+                                                    City
+                                                </label>
+                                                <input
+                                                    className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    value={formData.teamLeader?.city || ""}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            teamLeader: {
+                                                                ...formData.teamLeader,
+                                                                city: e.target.value,
+                                                            },
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm text-gray-400 mb-1">
+                                                    Phone
+                                                </label>
+                                                <input
+                                                    className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    value={formData.teamLeader?.phoneNumber || ""}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            teamLeader: {
+                                                                ...formData.teamLeader,
+                                                                phoneNumber: e.target.value,
+                                                            },
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm text-gray-400 mb-1">
+                                                    Email
+                                                </label>
+                                                <input
+                                                    className="w-full p-3 rounded-lg bg-[#0D0D12] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    value={formData.teamLeader?.email || ""}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            teamLeader: {
+                                                                ...formData.teamLeader,
+                                                                email: e.target.value,
+                                                            },
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 className="text-lg font-medium text-white mb-3">
+                                            Team Members
+                                        </h3>
+                                        <div className="space-y-4">
+                                            {formData.teamMembers?.map(
+                                                (member: TeamMember, idx: number) => (
+                                                    <div
+                                                        key={member._id || idx}
+                                                        className="bg-[#0D0D12] p-4 rounded-lg border border-gray-700"
+                                                    >
+                                                        <h4 className="text-gray-400 mb-2">
+                                                            Member {idx + 1}
+                                                        </h4>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div>
+                                                                <label className="block text-sm text-gray-400 mb-1">
+                                                                    Name
+                                                                </label>
+                                                                <input
+                                                                    className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                                    value={member.name || ""}
+                                                                    onChange={(e) => {
+                                                                        const newMembers = [...formData.teamMembers];
+                                                                        newMembers[idx].name = e.target.value;
+                                                                        setFormData({
+                                                                            ...formData,
+                                                                            teamMembers: newMembers,
+                                                                        });
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm text-gray-400 mb-1">
+                                                                    Email
+                                                                </label>
+                                                                <input
+                                                                    className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                                    value={member.email || ""}
+                                                                    onChange={(e) => {
+                                                                        const newMembers = [...formData.teamMembers];
+                                                                        newMembers[idx].email = e.target.value;
+                                                                        setFormData({
+                                                                            ...formData,
+                                                                            teamMembers: newMembers,
+                                                                        });
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm text-gray-400 mb-1">
+                                                                    Phone
+                                                                </label>
+                                                                <input
+                                                                    className="w-full p-2.5 rounded-lg bg-[#121218] border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                                    value={member.phoneNumber || ""}
+                                                                    onChange={(e) => {
+                                                                        const newMembers = [...formData.teamMembers];
+                                                                        newMembers[idx].phoneNumber = e.target.value;
+                                                                        setFormData({
+                                                                            ...formData,
+                                                                            teamMembers: newMembers,
+                                                                        });
+                                                                    }}
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            )
-                                        )}
+                                                )
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="flex justify-end gap-3 mt-8">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setEditingTeam(null)}
-                                    className="border-gray-700 bg-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    onClick={handleSaveEdit}
-                                    className="bg-purple-600 hover:bg-purple-500"
-                                >
-                                    Save Changes
-                                </Button>
+                                <div className="flex justify-end gap-3 mt-8">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setEditingTeam(null)}
+                                        className="border-gray-700 bg-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        onClick={handleSaveEdit}
+                                        className="bg-purple-600 hover:bg-purple-500"
+                                    >
+                                        Save Changes
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
-        </div>
+                    )
+                }
+            </div >
+        </div >
     );
 }
