@@ -6,9 +6,9 @@ connect();
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } } // ✅ Remove Promise
 ) {
-  const { id } = await context.params;
+  const { id } = params;
   const team = await Team.findById(id);
 
   if (!team) {
@@ -20,9 +20,9 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await context.params;
+  const { id } = params;
   const body = await req.json();
   const updatedTeam = await Team.findByIdAndUpdate(id, body, { new: true });
 
@@ -35,9 +35,9 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await context.params;
+  const { id } = params;
   const deletedTeam = await Team.findByIdAndDelete(id);
 
   if (!deletedTeam) {
