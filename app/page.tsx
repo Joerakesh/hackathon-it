@@ -216,11 +216,11 @@ export default function Home() {
 
           {/* CTA Buttons */}
           <motion.div variants={fadeIn} className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-            <Link href="/registration">
+            {/* <Link href="/registration">
               <button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 transform hover:-translate-y-1 w-full sm:w-auto">
                 Register Now
               </button>
-            </Link>
+            </Link> */}
             <Link href="/login">
               <button className="bg-[#222] hover:bg-purple-800/40 border border-purple-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto">
                 Team Leader Login
@@ -229,7 +229,8 @@ export default function Home() {
           </motion.div>
 
           <motion.p variants={fadeIn} className="playfair-display text-sm md:text-base text-center text-red-300 bg-red-900/20 px-4 py-2 rounded-lg border border-red-500/30 inline-block">
-            Registration closes on <span className="font-semibold">13th September 2025</span>
+            Registration closed
+            {/* on <span className="font-semibold">13th September 2025</span> */}
           </motion.p>
         </motion.div>
       </section>
