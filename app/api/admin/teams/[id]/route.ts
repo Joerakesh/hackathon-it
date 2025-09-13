@@ -6,9 +6,9 @@ connect();
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } } // ✅ Remove Promise
+  context: { params: Promise<{ id: string }> } // ✅ Remove Promise
 ) {
-  const { id } = params;
+  const { id } = await context.params;
   const team = await Team.findById(id);
 
   if (!team) {
@@ -20,9 +20,9 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await context.params;
   const body = await req.json();
   const updatedTeam = await Team.findByIdAndUpdate(id, body, { new: true });
 

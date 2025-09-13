@@ -6,7 +6,7 @@ import { Types } from "mongoose";
 // POST - Create a new note for a team
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> } // ✅ Use the same pattern as main route
 ) {
   try {
     const { content, author } = await request.json();
@@ -20,7 +20,9 @@ export async function POST(
 
     await connect();
 
-    const teamId = new Types.ObjectId(params.id);
+    // ✅ AWAIT the params first (same pattern as main route)
+    const { id } = await context.params;
+    const teamId = new Types.ObjectId(id);
 
     const newNote = new AdminNote({
       teamId,
@@ -43,13 +45,13 @@ export async function POST(
 // GET - Fetch all notes for a specific team
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } } // ✅ Already correct
+  context: { params: Promise<{ id: string }> } // ✅ Already correct
 ) {
   try {
     await connect();
 
     // ✅ AWAIT the params first (same pattern as main route)
-    const { id } = params;
+    const { id } = await context.params;
     const teamId = new Types.ObjectId(id);
 
     const notes = await AdminNote.find({ teamId }).sort({ createdAt: -1 });
