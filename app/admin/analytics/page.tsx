@@ -76,32 +76,70 @@ export default function AnalyticsPage() {
         }
     };
 
+    function normalizeCollegeName(name: string) {
+        return name
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, " ") // collapse multiple spaces
+            .replace(/[\.,']/g, "") // remove dots and apostrophes
+            .replace(/\(autonomous\)/gi, "autonomous") // unify brackets
+            .replace(/college of women/gi, "college for women") // unify wording
+            .replace(/st josephs?/gi, "st joseph's"); // unify variations
+    }
+
+    const collegeMap: Record<string, string> = {
+        "cauvery college for women autonomous": "Cauvery College for Women (Autonomous)",
+        "holy cross college": "Holy Cross College",
+        "bishop heber college": "Bishop Heber College",
+        "st joseph's college trichy": "St. Joseph's College (Trichy)",
+        "valluvar college of science and management": "Valluvar College of Science and Management",
+    };
+
+    function cleanCollege(name: string) {
+        const key = normalizeCollegeName(name);
+        return collegeMap[key] || name.trim();
+    }
+
     const calculateAnalytics = (teamsData: TeamData[]) => {
+        // Normalize college names
+        // const normalize = (name: string) =>
+        //     name.trim().toLowerCase()
+        //         .replace(/\s+/g, " ") // collapse multiple spaces
+        //         .replace(/autonomous/gi, "Autonomous"); // optional: consistent casing for keywords
+
         // Calculate teams by date (last 7 days)
         const last7Days = [...Array(7)].map((_, i) => {
             const d = new Date();
             d.setDate(d.getDate() - i);
-            return d.toISOString().split('T')[0];
+            return d.toISOString().split("T")[0];
         }).reverse();
 
         const teamsByDate = last7Days.map(date => ({
             date,
             count: teamsData.filter(team =>
-                new Date(team.createdAt).toISOString().split('T')[0] === date
-            ).length
+                new Date(team.createdAt).toISOString().split("T")[0] === date
+            ).length,
         }));
 
         // Calculate teams by college (top 10)
-        const collegeCount: Record<string, number> = {};
+        const collegeCount: Record<string, { original: string; count: number }> = {};
+
         teamsData.forEach(team => {
-            const college = team.teamLeader.college;
-            collegeCount[college] = (collegeCount[college] || 0) + 1;
+            const cleanedCollege = cleanCollege(team.teamLeader.college);
+            if (!collegeCount[cleanedCollege]) {
+                collegeCount[cleanedCollege] = { original: cleanedCollege, count: 0 };
+            }
+            collegeCount[cleanedCollege].count += 1;
         });
 
-        const teamsByCollege = Object.entries(collegeCount)
-            .map(([college, count]) => ({ college, count }))
+
+        const teamsByCollege = Object.values(collegeCount)
             .sort((a, b) => b.count - a.count)
-            .slice(0, 10);
+            .slice(0, 10)
+            .map(item => ({
+                college: item.original,
+                count: item.count
+            }));
 
         // Calculate total revenue
         const totalRevenue = teamsData
@@ -115,9 +153,10 @@ export default function AnalyticsPage() {
             rejectedPayments: teamsData.filter(t => t.payment.status === "rejected").length,
             totalRevenue,
             teamsByDate,
-            teamsByCollege
+            teamsByCollege,
         });
     };
+
 
     const exportToExcel = () => {
         // Prepare data for export
@@ -126,7 +165,7 @@ export default function AnalyticsPage() {
             Name: team.teamLeader.name,
             Contact: team.teamLeader.phoneNumber,
             Email: team.teamLeader.email,
-            College: team.teamLeader.college,
+            College: cleanCollege(team.teamLeader.college),
             Department: team.teamLeader.department,
             City: team.teamLeader.city,
             "Team Size": team.teamLeader.teamSize,
@@ -314,7 +353,7 @@ export default function AnalyticsPage() {
                             <div className="flex gap-2">
                                 <div className="relative">
                                     <select
-                                        className="appearance-none bg-[#0D0D12] border border-gray-800 rounded-lg py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/30"
+                                        className="appearance-none text-white bg-[#0D0D12] border border-gray-800 rounded-lg py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/30"
                                         value={collegeFilter}
                                         onChange={(e) => setCollegeFilter(e.target.value)}
                                     >
@@ -347,10 +386,10 @@ export default function AnalyticsPage() {
                                 </thead>
                                 <tbody>
                                     {teams
-                                        .filter(team => collegeFilter === "all" || team.teamLeader.college === collegeFilter)
-                                        .slice(0, 5)
+                                        .filter(team => collegeFilter === "all" || cleanCollege(team.teamLeader.college) === collegeFilter)
+                                        .slice(0, 7)
                                         .map((team) => (
-                                            <tr key={team._id} className="border-b border-gray-800">
+                                            <tr key={team._id} className="border-b text-white border-gray-800">
                                                 <td className="py-3 px-4 font-mono text-sm">{team.teamId}</td>
                                                 <td className="py-3 px-4">{team.teamLeader.name}</td>
                                                 <td className="py-3 px-4">{team.teamLeader.phoneNumber}</td>
@@ -358,8 +397,8 @@ export default function AnalyticsPage() {
                                                 <td className="py-3 px-4">{team.teamLeader.department}</td>
                                                 <td className="py-3 px-4">
                                                     <span className={`px-2 py-1 rounded-full text-xs ${team.payment.status === "approved" ? "bg-green-500/20 text-green-300" :
-                                                            team.payment.status === "pending" ? "bg-yellow-500/20 text-yellow-300" :
-                                                                "bg-red-500/20 text-red-300"
+                                                        team.payment.status === "pending" ? "bg-yellow-500/20 text-yellow-300" :
+                                                            "bg-red-500/20 text-red-300"
                                                         }`}>
                                                         {team.payment.status}
                                                     </span>
@@ -372,7 +411,7 @@ export default function AnalyticsPage() {
                         </div>
 
                         <div className="mt-4 text-center text-gray-500 text-sm">
-                            Showing {Math.min(5, teams.length)} of {teams.length} teams
+                            Showing {Math.min(7, teams.length)} of {teams.length} teams
                         </div>
                     </CardContent>
                 </Card>
