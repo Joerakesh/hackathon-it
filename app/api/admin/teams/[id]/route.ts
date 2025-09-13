@@ -35,9 +35,9 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await context.params;
   const deletedTeam = await Team.findByIdAndDelete(id);
 
   if (!deletedTeam) {
