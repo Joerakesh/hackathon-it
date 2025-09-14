@@ -22,6 +22,18 @@ interface BackgroundElement {
   delay: number;
 }
 
+// Confetti particle interface
+interface ConfettiParticle {
+  id: number;
+  x: number;
+  y: number;
+  angle: number;
+  size: number;
+  duration: number;
+  delay: number;
+  colors: string[];
+}
+
 export default function Home() {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -33,32 +45,17 @@ export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [backgroundElements, setBackgroundElements] = useState<BackgroundElement[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationPlayed, setCelebrationPlayed] = useState(false);
+  const [confettiParticles, setConfettiParticles] = useState<ConfettiParticle[]>([]);
 
   // Format numbers with zero padding (09 instead of 9)
   const formatTime = (num: number) => String(num).padStart(2, "0");
 
   useEffect(() => {
-    // Set client-side flag
     setIsClient(true);
 
-    // Generate background elements only on client
-    const elements: BackgroundElement[] = [];
-    for (let i = 0; i < 5; i++) {
-      elements.push({
-        id: i,
-        width: Math.random() * 200 + 100,
-        height: Math.random() * 200 + 100,
-        top: `${Math.random() * 100}%`,
-        left: `${Math.random() * 100}%`,
-        scale: [1, 1.2, 1],
-        opacity: [0.1, 0.2, 0.1],
-        duration: Math.random() * 5 + 5,
-        delay: Math.random() * 2,
-      });
-    }
-    setBackgroundElements(elements);
-
-    const eventDate = new Date("2025-09-16T09:30:00");
+    const eventDate = new Date("2025-09-16T10:00:00");
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -68,6 +65,37 @@ export default function Home() {
         clearInterval(timer);
         setExpired(true);
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+        // ✅ Check if already played on this device
+        const alreadyPlayed = localStorage.getItem("celebrationPlayed");
+        if (!alreadyPlayed) {
+          setCelebrationPlayed(true);
+          setShowCelebration(true);
+
+          // Generate confetti particles
+          const particles: ConfettiParticle[] = [];
+          for (let i = 0; i < 100; i++) {
+            particles.push({
+              id: i,
+              x: Math.random() * 100,
+              y: Math.random() * 100,
+              angle: Math.random() * 360,
+              size: Math.random() * 10 + 5,
+              duration: Math.random() * 3 + 2,
+              delay: Math.random() * 0.5,
+              colors: ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"],
+            });
+          }
+          setConfettiParticles(particles);
+
+          // ✅ Save flag so it never blasts again
+          localStorage.setItem("celebrationPlayed", "true");
+
+          // Hide after 5s
+          hideTimer = setTimeout(() => {
+            setShowCelebration(false);
+          }, 5000);
+        }
       } else {
         setTimeLeft({
           days: Math.floor(distance / (1000 * 60 * 60 * 24)),
@@ -78,12 +106,15 @@ export default function Home() {
       }
     }, 1000);
 
-    // Animation on load
-    setIsVisible(true);
+    let hideTimer: NodeJS.Timeout;
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      if (hideTimer) clearTimeout(hideTimer);
+    };
   }, []);
-
+  // no changing deps
+  // ✅ no dependency on showCelebration
   const rules = [
     "Teams must consist of 1-3 members",
     "Students must bring their laptop",
@@ -105,8 +136,76 @@ export default function Home() {
     visible: { transition: { staggerChildren: 0.1 } }
   };
 
+
+
   return (
-    <div className="bg-[#0a0a0a] text-white min-h-screen">
+    <div className="bg-[#0a0a0a] text-white min-h-screen overflow-hidden">
+      {/* Celebration Confetti Overlay */}
+      {showCelebration && (
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          {confettiParticles.map((particle) => (
+            <motion.div
+              key={particle.id}
+              className="absolute rounded-sm"
+              style={{
+                width: particle.size,
+                height: particle.size,
+                left: `${particle.x}%`,
+                top: `${particle.y}%`,
+                backgroundColor: particle.colors[Math.floor(Math.random() * particle.colors.length)],
+                rotate: particle.angle,
+              }}
+              initial={{ y: -100, opacity: 0 }}
+              animate={{
+                y: ["0%", "1000%"],
+                opacity: [1, 0],
+                x: Math.random() * 100 - 50,
+              }}
+              transition={{
+                duration: particle.duration,
+                delay: particle.delay,
+                ease: "easeOut",
+              }}
+            />
+          ))}
+
+          {/* Central Blast Effect */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div
+              className="w-64 h-64 rounded-full bg-yellow-500 mix-blend-screen"
+              initial={{ scale: 0 }}
+              animate={{ scale: 10, opacity: 0 }}
+              transition={{ duration: 1, delay: 0.2 }}
+            />
+          </motion.div>
+
+          {/* Celebration Message */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <div className="text-center bg-black/70 p-8 rounded-2xl border-2 border-yellow-400 shadow-2xl">
+              <motion.h2
+                className="text-5xl font-bold text-yellow-400 mb-4"
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 0.5, repeat: 1 }}
+              >
+                🎉 LET&apos;S BUILD! 🎉
+              </motion.h2>
+              <p className="text-xl text-white">The Hackathon has begun!</p>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
@@ -120,6 +219,7 @@ export default function Home() {
         </h1>
       </motion.header>
 
+      {/* Rest of the component remains the same */}
       {/* Hero Section */}
       <section className="min-h-[88vh] flex flex-col items-center justify-center bg-gradient-to-b from-[#0a0a1a] to-[#0f0f2d] text-center px-4 py-12 relative overflow-hidden">
         {/* Animated background elements - only render on client */}
@@ -216,11 +316,6 @@ export default function Home() {
 
           {/* CTA Buttons */}
           <motion.div variants={fadeIn} className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-            {/* <Link href="/registration">
-              <button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 transform hover:-translate-y-1 w-full sm:w-auto">
-                Register Now
-              </button>
-            </Link> */}
             <Link href="/login">
               <button className="bg-[#222] hover:bg-purple-800/40 border border-purple-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto">
                 Team Leader Login
@@ -230,7 +325,6 @@ export default function Home() {
 
           <motion.p variants={fadeIn} className="playfair-display text-sm md:text-base text-center text-red-300 bg-red-900/20 px-4 py-2 rounded-lg border border-red-500/30 inline-block">
             Registration closed
-            {/* on <span className="font-semibold">13th September 2025</span> */}
           </motion.p>
         </motion.div>
       </section>
