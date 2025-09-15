@@ -160,39 +160,39 @@ export default function AnalyticsPage() {
 
     const exportToExcel = () => {
         // Prepare data for export
-        const data = teams.map(team => ({
-            TeamID: team.teamId,
-            Name: team.teamLeader.name,
-            Contact: team.teamLeader.phoneNumber,
-            Email: team.teamLeader.email,
-            College: cleanCollege(team.teamLeader.college),
-            Department: team.teamLeader.department,
-            City: team.teamLeader.city,
-            "Team Size": team.teamLeader.teamSize,
-            "Payment Status": team.payment.status,
-            "Payment Amount": team.payment.amount,
-            "Registration Date": new Date(team.createdAt).toLocaleDateString()
-        }));
+        const data = teams.map(team => {
+            const members = team.teamMembers || [];
+
+            // Flatten member details (up to 3 members since leader is separate)
+            const memberData: Record<string, string> = {};
+            members.forEach((m, idx) => {
+                memberData[`Member${idx + 1} Name`] = m.name;
+                memberData[`Member${idx + 1} Email`] = m.email;
+                memberData[`Member${idx + 1} Phone`] = m.phoneNumber;
+            });
+
+            return {
+                TeamID: team.teamId,
+                LeaderName: team.teamLeader.name,
+                LeaderEmail: team.teamLeader.email,
+                LeaderPhone: team.teamLeader.phoneNumber,
+                College: cleanCollege(team.teamLeader.college),
+                Department: team.teamLeader.department,
+                City: team.teamLeader.city,
+                "Team Size": team.teamLeader.teamSize,
+                "Payment Status": team.payment.status,
+                "Payment Amount": team.payment.amount,
+                "Registration Date": new Date(team.createdAt).toLocaleDateString(),
+                ...memberData // merge member columns dynamically
+            };
+        });
 
         // Create workbook and worksheet
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.json_to_sheet(data);
 
-        // Set column widths
-        const colWidths = [
-            { wch: 10 }, // TeamID
-            { wch: 20 }, // Name
-            { wch: 15 }, // Contact
-            { wch: 25 }, // Email
-            { wch: 25 }, // College
-            { wch: 20 }, // Department
-            { wch: 15 }, // City
-            { wch: 10 }, // Team Size
-            { wch: 15 }, // Payment Status
-            { wch: 15 }, // Payment Amount
-            { wch: 15 }  // Registration Date
-        ];
-        worksheet['!cols'] = colWidths;
+        // Set column widths dynamically
+        worksheet['!cols'] = Array.from({ length: 15 }, () => ({ wch: 20 }));
 
         // Add worksheet to workbook
         XLSX.utils.book_append_sheet(workbook, worksheet, "Teams Data");
@@ -200,6 +200,7 @@ export default function AnalyticsPage() {
         // Generate Excel file and download
         XLSX.writeFile(workbook, `teams_export_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
+
 
     if (loading) {
         return (
