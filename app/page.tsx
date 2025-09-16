@@ -55,7 +55,7 @@ export default function Home() {
   useEffect(() => {
     setIsClient(true);
 
-    const eventDate = new Date("2025-09-16T10:10:00");
+    const eventDate = new Date("2025-09-16T16:15:00");
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -275,7 +275,7 @@ export default function Home() {
             {!expired ? (
               <>
                 <h2 className="text-lg text-gray-300 mb-6">
-                  Countdown to the event
+                  Event ends in
                 </h2>
                 <div className="flex flex-wrap justify-center gap-3 md:gap-4 text-white">
                   {[
