@@ -332,9 +332,9 @@ export default function Home() {
             </Link>
           </motion.div>
           <motion.div variants={fadeIn} className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-            <Link href="https://hackathon.jwstechnologies.com/docs/Hackathon_Problem_Statement.pdf">
+            <Link href="https://docs.google.com/forms/d/e/1FAIpQLSe4BhYU8xQqhjTp0zncA3XQ99VBJf65ptG3B--1_0IZCe2SgQ/viewform?usp=dialog">
               <button className="bg-[#222] hover:bg-purple-800/40 border border-purple-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto">
-                Problem Statement
+                Code Submission
               </button>
             </Link>
           </motion.div>
