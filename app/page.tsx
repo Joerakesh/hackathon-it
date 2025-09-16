@@ -55,7 +55,7 @@ export default function Home() {
   useEffect(() => {
     setIsClient(true);
 
-    const eventDate = new Date("2025-09-16T10:00:00");
+    const eventDate = new Date("2025-09-16T10:10:00");
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
