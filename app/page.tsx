@@ -207,9 +207,9 @@ export default function Home() {
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 0.5, repeat: 1 }}
               >
-                🎉 LET&apos;S BUILD! 🎉
+                🎉 TIME&apos;S UP! 🎉
               </motion.h2>
-              <p className="text-xl text-white">The Hackathon has begun!</p>
+              <p className="text-xl text-white">The Hackathon Ends!</p>
             </div>
           </motion.div>
         </div>
@@ -318,7 +318,7 @@ export default function Home() {
                 animate={{ scale: 1 }}
                 className="text-2xl font-bold text-green-400 bg-green-900/20 px-6 py-3 rounded-lg inline-block"
               >
-                🎉 The Hackathon is Live!
+                🎉 The Hackathon has Ended!
               </motion.p>
             )}
           </motion.div>
