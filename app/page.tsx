@@ -8,7 +8,7 @@ import { IoMailOutline } from "react-icons/io5";
 import { BsTelephone } from "react-icons/bs";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
+import { FaTrophy, FaAward, FaMedal } from "react-icons/fa";
 // Define types for background element properties
 interface BackgroundElement {
   id: number;
@@ -115,8 +115,18 @@ export default function Home() {
   }, []);
   // no changing deps
   // ✅ no dependency on showCelebration
-  const rules = [
-    "Teams must consist of 1-3 members",
+  const submit = [
+    "No PPT Needed",
+    "Think out of the Box",
+    "Be Creative",
+    "Deploy if you can",
+    "Clean code",
+    // "Upload code in Git",
+    // "Respect fellow participants and maintain fair play",
+    // "No pre-built solutions or existing projects",
+  ];
+
+  const rules = ["Teams must consist of 1-3 members",
     "Students must bring their laptop",
     "All code must be original and created during the event",
     "Use of external APIs and libraries is allowed",
@@ -124,8 +134,7 @@ export default function Home() {
     "Teams must present their solutions to judges",
     "Respect fellow participants and maintain fair play",
     "No pre-built solutions or existing projects",
-  ];
-
+  ]
   // Animation variants
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -260,7 +269,7 @@ export default function Home() {
             variants={fadeIn}
             className="playfair-display text-5xl md:text-7xl lg:text-8xl font-extrabold text-white drop-shadow-lg mb-4"
           >
-            Hackathon <span className="text-purple-500">2025</span>
+            Hackathon <span className="text-purple-500">&#39;25</span>
           </motion.h1>
 
           <motion.p
@@ -330,8 +339,8 @@ export default function Home() {
             </Link>
           </motion.div>
 
-          <motion.p variants={fadeIn} className="playfair-display text-sm md:text-base text-center text-red-300 bg-red-900/20 px-4 py-2 rounded-lg border border-red-500/30 inline-block">
-            Registration closed
+          <motion.p variants={fadeIn} className="playfair-display text-sm md:text-base text-center text-red-300 bg-blue-900/20 px-4 py-2 rounded-lg border border-red-500/30 inline-block">
+            Powered by JWS Technologies
           </motion.p>
         </motion.div>
       </section>
@@ -457,6 +466,143 @@ export default function Home() {
           </div>
         </motion.div>
       </section>
+      {/* Prizes & Recognition */}
+      <section className="py-20 bg-[#0f0f0f]">
+        <motion.h1
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="playfair-display text-4xl text-center font-semibold mb-12"
+        >
+          Prizes & Recognition
+        </motion.h1>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="flex items-center justify-center px-4"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full">
+            {/* First Place */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className="bg-gradient-to-b from-[#111] to-[#1a1a2e] border border-purple-900/40 rounded-2xl p-6 text-center shadow-lg hover:shadow-purple-900/20 transition-all duration-300 relative overflow-hidden"
+            >
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-yellow-500/10 rounded-full"></div>
+              <div className="relative z-10">
+                <div className="flex justify-center mb-4">
+                  <FaTrophy className="text-4xl text-yellow-400" />
+                </div>
+                <h3 className="playfair-display text-2xl font-bold text-yellow-400 mb-2">
+                  1st Place
+                </h3>
+                <h4 className="text-lg font-semibold text-white mb-4">Grand Prize</h4>
+                <div className="space-y-2 text-gray-200">
+                  <p className="flex items-center justify-center gap-2">
+                    {/* <span className="w-2 h-2 bg-yellow-400 rounded-full"></span> */}
+                    ₹2000 + Shield
+                  </p>
+
+                  <p className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                    Certificate Included
+                  </p>
+
+
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Second Place */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className="bg-gradient-to-b from-[#111] to-[#1a1a2e] border border-purple-900/40 rounded-2xl p-6 text-center shadow-lg hover:shadow-purple-900/20 transition-all duration-300 relative overflow-hidden"
+            >
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-gray-400/10 rounded-full"></div>
+              <div className="relative z-10">
+                <div className="flex justify-center mb-4">
+                  <FaMedal className="text-4xl text-gray-300" />
+                </div>
+                <h3 className="playfair-display text-2xl font-bold text-gray-300 mb-2">
+                  2nd Place
+                </h3>
+                <h4 className="text-lg font-semibold text-white mb-4">Runner Up</h4>
+                <div className="space-y-2 text-gray-200">
+                  <p className="flex items-center justify-center gap-2">
+                    {/* <span className="w-2 h-2 bg-yellow-400 rounded-full"></span> */}
+                    ₹1000 + Shield
+                  </p>
+
+                  <p className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                    Certificate Included
+                  </p>
+
+
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Third Place */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className="bg-gradient-to-b from-[#111] to-[#1a1a2e] border border-purple-900/40 rounded-2xl p-6 text-center shadow-lg hover:shadow-purple-900/20 transition-all duration-300 relative overflow-hidden"
+            >
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-amber-700/10 rounded-full"></div>
+              <div className="relative z-10">
+                <div className="flex justify-center mb-4">
+                  <FaAward className="text-4xl text-amber-600" />
+                </div>
+                <h3 className="playfair-display text-2xl font-bold text-amber-600 mb-2">
+                  3rd Place
+                </h3>
+                <h4 className="text-lg font-semibold text-white mb-4">Third Place</h4>
+                <div className="space-y-2 text-gray-200">
+                  <p className="flex items-center justify-center gap-2">
+                    {/* <span className="w-2 h-2 bg-yellow-400 rounded-full"></span> */}
+                    ₹750 + Shield
+                  </p>
+
+                  <p className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                    Certificate Included
+                  </p>
+
+
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Additional Note */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="mt-12 text-center max-w-3xl mx-auto px-4"
+        >
+          <p className="text-gray-400 italic">
+            All participants will receive certificates of participation today itself.
+          </p>
+        </motion.div>
+      </section>
 
       {/* Rules */}
       <section className="py-20 bg-[#0a0a0a]">
@@ -491,6 +637,45 @@ export default function Home() {
                   {index + 1}
                 </span>
                 <p className="text-gray-200 text-left">{rule}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Submit */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <motion.h1
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="playfair-display text-4xl text-center font-semibold mb-12"
+        >
+          Submission Guidelines
+        </motion.h1>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="flex items-center justify-center px-4"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-5xl w-full">
+            {submit.map((sub, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.02 }}
+                className="flex items-start gap-4 bg-gradient-to-b from-[#111] to-[#1a1a2e] border border-purple-900/40 rounded-2xl p-5 shadow-md hover:shadow-purple-900/20 transition-all duration-300"
+              >
+                <span className="flex items-center justify-center w-8 h-8 rounded-full border border-purple-500 text-purple-400 font-semibold text-sm flex-shrink-0 mt-0.5">
+                  {index + 1}
+                </span>
+                <p className="text-gray-200 text-left">{sub}</p>
               </motion.div>
             ))}
           </div>
