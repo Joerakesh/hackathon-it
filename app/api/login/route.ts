@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { connect } from "@/dbconfig/db";
-import Team from "@/models/team.model";
+import Participant from "@/models/participant.model";
 
 export async function POST(req: Request) {
   try {
@@ -12,56 +12,48 @@ export async function POST(req: Request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: "Email and password are required" },
-        { status: 400 }
+        { error: "Email and password required" },
+        { status: 400 },
       );
     }
 
-    // 🔎 Find team leader by email and explicitly include password
-    const team = await Team.findOne({ "teamLeader.email": email }).select(
-      "teamLeader.email teamLeader.password teamLeader.name teamLeader.college teamLeader.city teamLeader.teamSize"
-    );
+    // Include password explicitly
+    const user = await Participant.findOne({ email }).select("+password");
 
-    if (!team || !team.teamLeader.password) {
+    if (!user || !user.password) {
       return NextResponse.json(
         { error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    // console.log("DB stored hash:", team.teamLeader.password);
-    // console.log("Plain password received:", password);
+    // ✅ bcrypt directly (NO schema method)
+    const isMatch = await bcrypt.compare(password, user.password);
 
-    // ✅ Compare password
-    const isMatch = await bcrypt.compare(password, team.teamLeader.password);
     if (!isMatch) {
       return NextResponse.json(
         { error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    // 🔑 Generate JWT
     const token = jwt.sign(
-      { teamId: team._id, email: team.teamLeader.email },
+      { participantId: user._id },
       process.env.JWT_SECRET as string,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
-    // 🍪 Set cookie
     const response = NextResponse.json(
       {
         message: "Login successful",
-        team: {
-          id: team._id,
-          name: team.teamLeader.name,
-          email: team.teamLeader.email,
-          college: team.teamLeader.college,
-          city: team.teamLeader.city,
-          teamSize: team.teamLeader.teamSize,
+        participant: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          paymentStatus: user.payment.status,
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
 
     response.cookies.set("token", token, {
@@ -74,7 +66,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (err) {
-    console.error("❌ Error in /api/login:", err);
+    console.error("❌ Login error:", err);
     return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
 }

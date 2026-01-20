@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connect } from "@/dbconfig/db";
-import Team from "@/models/team.model";
+import Team from "@/models/participant.model";
 import Certificate from "@/models/certificate.model";
 import fs from "fs";
 import path from "path";
@@ -51,13 +51,13 @@ export async function POST(req: Request) {
       (team.teamLeader as TeamLeader)._id.toString() === memberId
         ? (team.teamLeader as TeamLeader)
         : (team.teamMembers as TeamMember[]).find(
-            (m: TeamMember) => m._id.toString() === memberId
+            (m: TeamMember) => m._id.toString() === memberId,
           );
 
     if (!member) {
       return NextResponse.json(
         { error: "Member not found in team" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 

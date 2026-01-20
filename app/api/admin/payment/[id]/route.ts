@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { connect } from "@/dbconfig/db";
-import Team from "@/models/team.model";
+import Team from "@/models/participant.model";
 import sgMail from "@sendgrid/mail";
 import path from "path";
 import fs from "fs";
@@ -9,7 +9,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ Change this
+  context: { params: Promise<{ id: string }> }, // ✅ Change this
 ) {
   await connect();
 
@@ -61,16 +61,16 @@ export async function PUT(
             <ul>
               <li><strong>Team ID:</strong> ${team.teamId}</li>
               <li><strong>Leader:</strong> ${team.teamLeader.name}, ${
-        team.teamLeader.college
-      }, ${team.teamLeader.city}, ${team.teamLeader.phoneNumber}, ${
-        team.teamLeader.email
-      }</li>
+                team.teamLeader.college
+              }, ${team.teamLeader.city}, ${team.teamLeader.phoneNumber}, ${
+                team.teamLeader.email
+              }</li>
               ${team.teamMembers
                 .map(
                   (m, i) =>
                     `<li><strong>Member ${i + 1}:</strong> ${m.name}, ${
                       m.email
-                    }, ${m.phoneNumber}</li>`
+                    }, ${m.phoneNumber}</li>`,
                 )
                 .join("")}
             </ul>

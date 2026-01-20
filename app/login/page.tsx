@@ -29,7 +29,7 @@ export default function LoginPage() {
                 setError(data.error || "Login failed");
             } else {
                 // Save team info (optional, since token is in cookie)
-                localStorage.setItem("team", JSON.stringify(data.team));
+                localStorage.setItem("participant", JSON.stringify(data.participant));
                 router.push("/dashboard");
             }
         } catch (err) {

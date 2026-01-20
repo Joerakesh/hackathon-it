@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbconfig/db";
-import Team from "@/models/team.model";
+import Team from "@/models/participant.model";
 
 export async function GET() {
   await connect();
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json(
       { error: "Failed to create team" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

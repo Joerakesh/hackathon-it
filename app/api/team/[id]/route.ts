@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { connect } from "@/dbconfig/db";
-import Team from "@/models/team.model";
+import Team from "@/models/participant.model";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 export async function PUT(
   req: Request,
-  context: { params: Promise<{ id: string }> } // 👈 params must be awaited
+  context: { params: Promise<{ id: string }> }, // 👈 params must be awaited
 ) {
   try {
     await connect();
@@ -33,7 +33,7 @@ export async function PUT(
     if (decoded.teamId !== id) {
       return NextResponse.json(
         { error: "You are not allowed to update this team" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -64,7 +64,7 @@ export async function PUT(
 
     return NextResponse.json(
       { message: "Team updated successfully", team },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     console.error("❌ Error updating team:", err);

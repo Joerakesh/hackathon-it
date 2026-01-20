@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbconfig/db";
-import Team from "@/models/team.model";
+import Team from "@/models/participant.model";
 
 connect();
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ Remove Promise
+  context: { params: Promise<{ id: string }> }, // ✅ Remove Promise
 ) {
   const { id } = await context.params;
   const team = await Team.findById(id);
@@ -20,7 +20,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
   const body = await req.json();
@@ -35,7 +35,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
   const deletedTeam = await Team.findByIdAndDelete(id);
@@ -46,6 +46,6 @@ export async function DELETE(
 
   return NextResponse.json(
     { message: "Team deleted successfully" },
-    { status: 200 }
+    { status: 200 },
   );
 }
