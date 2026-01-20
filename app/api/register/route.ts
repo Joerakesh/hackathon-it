@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     await sendRegistrationMail({
       to: participant.email,
       name: participant.name,
-      participantId: participant._id.toString(),
+      participantId: String(participant._id),
       qrBase64,
     });
 

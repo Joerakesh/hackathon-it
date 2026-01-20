@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connect } from "@/dbconfig/db";
-import Team from "@/models/participant.model";
+import Team from "@/models/team.model";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
