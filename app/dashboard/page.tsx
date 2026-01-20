@@ -13,13 +13,33 @@ import {
     ExternalLink, Trophy, ShieldAlert, Binary, Clock
 } from "lucide-react";
 
+
+interface Participant {
+    _id: string;
+    name: string;
+    email: string;
+    college: string;
+    department: string;
+    payment: {
+        status: "pending" | "approved" | "rejected";
+    };
+}
+
+interface LevelCardProps {
+    num: string;
+    title: string;
+    lang: string;
+    time: string;
+    slash: string;
+    isFinal?: boolean;
+}
 /* ================= DASHBOARD ================= */
 
 export default function Dashboard() {
     const router = useRouter();
-    const [user, setUser] = useState<any | null>(null);
+    const [user, setUser] = useState<Participant | null>(null);
+    const [notices, setNotices] = useState<unknown[]>([]);
     const [qrCode, setQrCode] = useState<string | null>(null);
-    const [notices, setNotices] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -187,7 +207,14 @@ function StatusBadge({ status }: { status: string }) {
     );
 }
 
-function LevelCard({ num, title, lang, time, slash, isFinal }: any) {
+function LevelCard({
+    num,
+    title,
+    lang,
+    time,
+    slash,
+    isFinal = false,
+}: LevelCardProps) {
     return (
         <div className={`p-4 rounded-xl border ${isFinal ? 'border-purple-500/40 bg-purple-500/5 shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'border-white/5 bg-white/5'}`}>
             <p className="text-[10px] font-bold text-purple-500 mb-1">LEVEL {num}</p>

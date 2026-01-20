@@ -15,6 +15,11 @@ interface RegistrationMailParams {
   qrBase64: string;
 }
 
+/* ---- Helper: wrap base64 at 76 chars ---- */
+function wrapBase64(base64: string): string {
+  return base64.match(/.{1,76}/g)?.join("\r\n") ?? base64;
+}
+
 export async function sendRegistrationMail({
   to,
   name,
@@ -22,13 +27,14 @@ export async function sendRegistrationMail({
   qrBase64,
 }: RegistrationMailParams) {
   const boundary = "NextJSBoundary123";
-  console.log(qrBase64);
-  const rawEmail = `
-From: ${process.env.AWS_SES_SENDER}
+  const wrappedQR = wrapBase64(qrBase64);
+
+  const subject = "✅ GLITCH FIX Registration Confirmed – Payment Pending";
+  const encodedSubject = Buffer.from(subject).toString("base64");
+
+  const rawEmail = `From: ${process.env.AWS_SES_SENDER}
 To: ${to}
-Subject: =?UTF-8?B?${Buffer.from(
-    "✅ GLITCH FIX Registration Confirmed – Payment Pending",
-  ).toString("base64")}?=
+Subject: =?UTF-8?B?${encodedSubject}?=
 MIME-Version: 1.0
 Content-Type: multipart/related; boundary="${boundary}"
 
@@ -75,19 +81,18 @@ Content-Transfer-Encoding: base64
 Content-ID: <qrCodeImage>
 Content-Disposition: inline; filename="qr.png"
 
-${qrBase64}
+${wrappedQR}
 
---${boundary}--
-`;
+--${boundary}--`;
 
   try {
-    const command = new SendRawEmailCommand({
-      RawMessage: {
-        Data: Buffer.from(rawEmail),
-      },
-    });
-
-    await sesClient.send(command);
+    await sesClient.send(
+      new SendRawEmailCommand({
+        RawMessage: {
+          Data: Buffer.from(rawEmail, "utf-8"),
+        },
+      }),
+    );
     return { success: true };
   } catch (error) {
     console.error("❌ SES RawEmail error:", error);

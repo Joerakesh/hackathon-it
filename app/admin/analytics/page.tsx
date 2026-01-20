@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,15 +58,11 @@ export default function AnalyticsPage() {
     const [dateRange, setDateRange] = useState({ start: "", end: "" });
     const [collegeFilter, setCollegeFilter] = useState("all");
 
-    useEffect(() => {
-        fetchTeams();
-    }, []);
-
-    const fetchTeams = async () => {
+    const fetchTeams = useCallback(async () => {
         setLoading(true);
         try {
             const res = await fetch("/api/admin/teams");
-            const data = await res.json();
+            const data: TeamData[] = await res.json();
             setTeams(data);
             calculateAnalytics(data);
         } catch (err) {
@@ -74,7 +70,11 @@ export default function AnalyticsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchTeams();
+    }, [fetchTeams]);
 
     function normalizeCollegeName(name: string) {
         return name
