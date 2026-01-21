@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       department: data.department,
       city: data.city,
       phoneNumber: data.phoneNumber,
-      password: data.password, // hashed by schema middleware
+      password: data.password,
       event: "GLITCH FIX",
       participationType: "Individual",
       payment: {
@@ -73,8 +73,9 @@ export async function POST(req: Request) {
       },
     });
 
-    /* ---------- Generate QR ---------- */
-    const upiUrl = `upi://pay?pa=rakeshjoe52@oksbi&pn=GLITCH%20FIX&am=250&cu=INR&tn=${participant._id}`;
+    /* ---------- Generate QR (USE participantId) ---------- */
+    const upiUrl = `upi://pay?pa=7094594221@naviaxis&pn=GLITCH%20FIX&am=250&cu=INR&tn=${participant.participantId}`;
+
     const qrBuffer = await QRCode.toBuffer(upiUrl, {
       width: 220,
       margin: 1,
@@ -86,12 +87,15 @@ export async function POST(req: Request) {
     await sendRegistrationMail({
       to: participant.email,
       name: participant.name,
-      participantId: String(participant._id),
+      participantId: participant.participantId, // ✅ correct
       qrBase64,
     });
 
     return NextResponse.json(
-      { message: "Registration successful", id: participant._id },
+      {
+        message: "Registration successful",
+        participantId: participant.participantId, // ✅ return this
+      },
       { status: 201 },
     );
   } catch (error) {

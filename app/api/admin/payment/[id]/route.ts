@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest, context: RouteContext) {
   const { id } = await context.params;
   const { action } = await req.json();
 
-  if (action !== "approve" && action !== "reject") {
+  if (!["approve", "reject", "pending"].includes(action)) {
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   }
 
@@ -35,23 +35,31 @@ export async function PUT(req: NextRequest, context: RouteContext) {
     );
   }
 
-  participant.payment.status = action === "approve" ? "approved" : "rejected";
+  /* ---------- UPDATE PAYMENT STATUS ---------- */
+  if (action === "approve") {
+    participant.payment.status = "approved";
+  } else if (action === "reject") {
+    participant.payment.status = "rejected";
+  } else {
+    participant.payment.status = "pending";
+  }
+
   participant.payment.updatedAt = new Date();
   await participant.save();
 
-  /* ---------- SES RAW EMAIL ---------- */
-  const boundary = "PaymentBoundary123";
+  /* ---------- EMAIL ONLY FOR APPROVE / REJECT ---------- */
+  if (action === "approve" || action === "reject") {
+    const boundary = "PaymentBoundary123";
+    let attachmentsBlock = "";
 
-  let attachmentsBlock = "";
+    if (action === "approve") {
+      const rulesPath = path.join(process.cwd(), "public/docs/rules.pdf");
+      const schedulePath = path.join(process.cwd(), "public/docs/schedule.pdf");
 
-  if (action === "approve") {
-    const rulesPath = path.join(process.cwd(), "public/docs/rules.pdf");
-    const schedulePath = path.join(process.cwd(), "public/docs/schedule.pdf");
+      const rulesBase64 = fs.readFileSync(rulesPath).toString("base64");
+      const scheduleBase64 = fs.readFileSync(schedulePath).toString("base64");
 
-    const rulesBase64 = fs.readFileSync(rulesPath).toString("base64");
-    const scheduleBase64 = fs.readFileSync(schedulePath).toString("base64");
-
-    attachmentsBlock = `
+      attachmentsBlock = `
 --${boundary}
 Content-Type: application/pdf
 Content-Transfer-Encoding: base64
@@ -66,35 +74,35 @@ Content-Disposition: attachment; filename="schedule.pdf"
 
 ${scheduleBase64}
 `;
-  }
+    }
 
-  const htmlBody =
-    action === "approve"
-      ? `
-        <h2>Payment Approved ✅</h2>
-        <p>Hi <strong>${participant.name}</strong>,</p>
-        <p>Your payment of <strong>₹${participant.payment.amount}</strong> has been approved.</p>
-        <p><strong>Participant ID:</strong> ${participant._id}</p>
-        <p>📍 Venue: Sacred Heart College</p>
-        <p>📅 Date: February 6</p>
-        <p style="color:#991b1b;font-weight:bold;">
-          ⚠️ Bring your laptop. No mobile phones allowed.
-        </p>
-      `
-      : `
-        <h2>Payment Rejected ❌</h2>
-        <p>Hi <strong>${participant.name}</strong>,</p>
-        <p>Your payment of <strong>₹${participant.payment.amount}</strong> could not be approved.</p>
-        <p>Please contact support if this is a mistake.</p>
-      `;
+    const htmlBody =
+      action === "approve"
+        ? `
+          <h2>Payment Approved ✅</h2>
+          <p>Hi <strong>${participant.name}</strong>,</p>
+          <p>Your payment of <strong>₹${participant.payment.amount}</strong> has been approved.</p>
+          <p><strong>Participant ID:</strong> ${participant._id}</p>
+          <p>📍 Venue: Sacred Heart College</p>
+          <p>📅 Date: February 6</p>
+          <p style="color:#991b1b;font-weight:bold;">
+            ⚠️ Bring your laptop. No mobile phones allowed.
+          </p>
+        `
+        : `
+          <h2>Payment Rejected ❌</h2>
+          <p>Hi <strong>${participant.name}</strong>,</p>
+          <p>Your payment of <strong>₹${participant.payment.amount}</strong> could not be approved.</p>
+          <p>Please contact support if this is a mistake.</p>
+        `;
 
-  const rawEmail = `From: ${process.env.AWS_SES_SENDER}
+    const rawEmail = `From: ${process.env.AWS_SES_SENDER}
 To: ${participant.email}
 Subject: ${
-    action === "approve"
-      ? "Payment Approved – GLITCH FIX Registration Confirmed"
-      : "Payment Rejected – GLITCH FIX"
-  }
+      action === "approve"
+        ? "Payment Approved – GLITCH FIX Registration Confirmed"
+        : "Payment Rejected – GLITCH FIX"
+    }
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary="${boundary}"
 
@@ -107,16 +115,20 @@ ${attachmentsBlock}
 --${boundary}--
 `;
 
-  await sesClient.send(
-    new SendRawEmailCommand({
-      RawMessage: {
-        Data: Buffer.from(rawEmail),
-      },
-    }),
-  );
+    await sesClient.send(
+      new SendRawEmailCommand({
+        RawMessage: {
+          Data: Buffer.from(rawEmail),
+        },
+      }),
+    );
+  }
 
   return NextResponse.json({
-    message: `Payment ${action}d successfully`,
+    message:
+      action === "pending"
+        ? "Payment set to pending"
+        : `Payment ${action}d successfully`,
     payment: participant.payment,
   });
 }

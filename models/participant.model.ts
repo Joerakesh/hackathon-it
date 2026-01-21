@@ -1,9 +1,12 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcryptjs";
+import Counter from "./counter.model";
 
 /* ------------------ TYPES ------------------ */
 
 export interface ParticipantDocument extends Document {
+  participantId: string;
+
   name: string;
   college: string;
   department: string;
@@ -32,50 +35,35 @@ export interface ParticipantDocument extends Document {
 
 const PaymentSchema = new Schema(
   {
-    amount: {
-      type: Number,
-      required: true,
-      default: 250,
-    },
+    amount: { type: Number, required: true, default: 250 },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
       required: true,
     },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
+    updatedAt: { type: Date, default: Date.now },
   },
   { _id: false },
 );
 
 const ParticipantSchema = new Schema<ParticipantDocument>(
   {
+    participantId: {
+      type: String,
+      unique: true,
+      index: true,
+    },
+
     name: { type: String, required: true, trim: true },
 
-    college: {
-      type: String,
-      required: true,
-      trim: true,
-      index: true,
-    },
+    college: { type: String, required: true, trim: true, index: true },
 
-    department: {
-      type: String,
-      required: true,
-      trim: true,
-      index: true,
-    },
+    department: { type: String, required: true, trim: true, index: true },
 
     city: { type: String, required: true, trim: true },
 
-    phoneNumber: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    phoneNumber: { type: String, required: true, unique: true },
 
     email: {
       type: String,
@@ -85,17 +73,9 @@ const ParticipantSchema = new Schema<ParticipantDocument>(
       trim: true,
     },
 
-    password: {
-      type: String,
-      required: true,
-      select: false, // 🔒 never returned by default
-    },
+    password: { type: String, required: true, select: false },
 
-    event: {
-      type: String,
-      default: "GLITCH FIX",
-      immutable: true,
-    },
+    event: { type: String, default: "GLITCH FIX", immutable: true },
 
     participationType: {
       type: String,
@@ -109,19 +89,26 @@ const ParticipantSchema = new Schema<ParticipantDocument>(
       default: "participant",
     },
 
-    payment: {
-      type: PaymentSchema,
-      required: true,
-    },
+    payment: { type: PaymentSchema, required: true },
   },
   { timestamps: true },
 );
 
 /* ------------------ MIDDLEWARE ------------------ */
 
-// Hash password before save
+// 🔐 Hash password
 ParticipantSchema.pre("save", async function (next) {
   const user = this as ParticipantDocument;
+
+  if (user.isNew) {
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: "participant" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true },
+    );
+
+    user.participantId = `SHCCSGF${String(counter.seq).padStart(3, "0")}`;
+  }
 
   if (!user.isModified("password")) return next();
 

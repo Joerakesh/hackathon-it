@@ -17,6 +17,7 @@ import LoginPage from "../login/page";
 
 interface Participant {
     _id: string;
+    participantId: string;
     name: string;
     email: string;
     college: string;
@@ -50,6 +51,7 @@ export default function Dashboard() {
                 if (!res.ok) throw new Error("Unauthorized");
                 const data = await res.json();
                 setUser(data);
+                console.log(data)
 
                 if (data.payment.status === "pending") {
                     const upiUrl = `upi://pay?pa=7094594221@naviaxis&pn=GLITCH%20FIX&am=250&cu=INR&tn=${data._id}`;
@@ -109,7 +111,7 @@ export default function Dashboard() {
                         <CardHeader className="pb-2">
                             <Badge className="w-fit mb-2 bg-purple-500/10 text-purple-400 border-none">PARTICIPANT</Badge>
                             <CardTitle className="text-2xl text-white font-bold">{user.name}</CardTitle>
-                            <p className="text-xs text-gray-500 font-mono">{user._id}</p>
+                            <p className="text-xs text-gray-500 font-mono">{user.participantId}</p>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2 pt-2 border-t border-white/5">
