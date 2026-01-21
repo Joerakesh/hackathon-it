@@ -161,14 +161,14 @@ export default function Dashboard() {
                         <CardContent className="grid grid-cols-2 gap-4">
                             <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/10">
                                 <p className="text-[10px] text-yellow-600 font-bold uppercase">Winner</p>
-                                <p className="text-xl text-white">₹5,000</p>
+                                <p className="text-xl text-white">₹10,000</p>
                             </div>
                             <div className="p-3 rounded-lg bg-gray-400/5 border border-gray-400/10">
                                 <p className="text-[10px] text-gray-400 font-bold uppercase">Runner Up</p>
-                                <p className="text-xl text-white text-gray-300">₹3,000</p>
+                                <p className="text-xl text-white text-gray-300">₹5,000</p>
                             </div>
                             <div className="text-xs text-gray-500 col-span-2 text-center">
-                                3rd: ₹2k • 4th: ₹1k
+                                3rd: ₹3k • 4th: ₹2k • 5th: ₹1k
                             </div>
                         </CardContent>
                     </Card>

@@ -62,18 +62,26 @@ const levels = [
 ];
 
 const prizes = [
-  { place: "1st Prize", amount: "₹5,000" },
-  { place: "2nd Prize", amount: "₹3,000" },
-  { place: "3rd Prize", amount: "₹2,000" },
-  { place: "4th Prize", amount: "₹1,000" },
+  { place: "1st Prize", amount: "₹10,000" },
+  { place: "2st Prize", amount: "₹5,000" },
+  { place: "3nd Prize", amount: "₹3,000" },
+  { place: "4rd Prize", amount: "₹2,000" },
+  { place: "5th Prize", amount: "₹1,000" },
 ];
 
 const rules = [
-  "No Internet / Mobile Phones allowed",
-  "No Smart Watches or External Devices",
-  "Malpractice leads to Immediate Disqualification",
-  "Judges’ decision is final",
+  "Laptop is mandatory for participation",
+  "Mobile phones, smart watches, and external devices are strictly prohibited",
+  "Internet usage is not allowed unless explicitly permitted by organizers",
+  "AI tools (ChatGPT, Copilot, Gemini, etc.) are strictly prohibited",
+  "Copying and pasting from any source is not allowed",
+  "Full-screen mode is mandatory; switching tabs or exiting full screen counts as a violation",
+  "Each prohibited action counts as one violation",
+  "Accumulating 10 violations leads to immediate disqualification",
+  "Any form of malpractice results in immediate disqualification",
+  "Judges’ and organizers’ decisions are final and binding",
 ];
+
 
 /* ------------------ COMPONENT ------------------ */
 
@@ -282,21 +290,22 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="bg-black border-t border-gray-800 py-10 text-center text-gray-400">
-        <p>Student Coordinator:</p>
-        <p>Staff Coordinator:</p>
 
         <div className="mt-4 flex justify-center gap-6">
-          <a href="mailto:example@gmail.com" className="flex items-center gap-2">
-            <IoMailOutline /> example@gmail.com
+          <a href="tel:+918072444301" className="flex items-center gap-2">
+            <BsTelephone />Student Coordinator: +91 80724 44301
           </a>
-          <a href="tel:+91XXXXXXXXXX" className="flex items-center gap-2">
-            <BsTelephone /> +91 XXXXXXXXXX
+          <a href="tel:+919585488790" className="flex items-center gap-2">
+            <BsTelephone />Staff Coordinator: +91 95854 88790
           </a>
         </div>
 
         <p className="mt-6 text-sm">
           © 2026 Sacred Heart College (Autonomous)
         </p>
+        {/* <p className="mt-6 text-sm">
+          Powered by <a href="http://www.jwstechnologies.com">JWS Technologies</a>
+        </p> */}
       </footer>
     </div>
   );
