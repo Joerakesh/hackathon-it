@@ -65,6 +65,7 @@ const IndividualRegistration: React.FC = () => {
 
             if (res.status === 201) {
                 alert("✅ Registration successful!");
+                router.push("./login")
             }
             else if (res.status === 409) {
                 alert("⚠️ You have already registered for GLITCH FIX.");
@@ -102,6 +103,7 @@ const IndividualRegistration: React.FC = () => {
                             name="name"
                             value={form.name}
                             onChange={handleChange}
+                            placeholder="Enter your full name"
                             required
                             className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
                         />
@@ -113,6 +115,7 @@ const IndividualRegistration: React.FC = () => {
                             name="college"
                             value={form.college}
                             onChange={handleChange}
+                            placeholder="Enter your college"
                             required
                             className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
                         />
@@ -124,6 +127,7 @@ const IndividualRegistration: React.FC = () => {
                             name="department"
                             value={form.department}
                             onChange={handleChange}
+                            placeholder="Enter your department"
                             required
                             className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
                         />
@@ -135,6 +139,7 @@ const IndividualRegistration: React.FC = () => {
                             name="city"
                             value={form.city}
                             onChange={handleChange}
+                            placeholder="Enter your city"
                             required
                             className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
                         />
@@ -149,6 +154,7 @@ const IndividualRegistration: React.FC = () => {
                             type="tel"
                             value={form.phoneNumber}
                             onChange={handleChange}
+                            placeholder="Enter your phone number"
                             required
                             className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
                         />
@@ -163,6 +169,7 @@ const IndividualRegistration: React.FC = () => {
                             type="email"
                             value={form.email}
                             onChange={handleChange}
+                            placeholder="Enter your email"
                             required
                             className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
                         />
@@ -174,6 +181,7 @@ const IndividualRegistration: React.FC = () => {
                             name="password"
                             value={form.password}
                             onChange={handleChange}
+                            placeholder="Enter your password"
                             required
                             className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
                         />
@@ -186,6 +194,7 @@ const IndividualRegistration: React.FC = () => {
                             name="confirmPassword"
                             value={form.confirmPassword}
                             onChange={handleChange}
+                            placeholder="Enter your confirm password"
                             required
                             className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
                         />
