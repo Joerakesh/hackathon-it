@@ -62,25 +62,28 @@ const levels = [
 ];
 
 const prizes = [
-  { place: "1st Prize", amount: "₹10,000" },
-  { place: "2st Prize", amount: "₹5,000" },
+  { place: "1st Prize", amount: "₹5,000" },
+  { place: "2st Prize", amount: "₹4,000" },
   { place: "3nd Prize", amount: "₹3,000" },
   { place: "4rd Prize", amount: "₹2,000" },
   { place: "5th Prize", amount: "₹1,000" },
 ];
 
 const rules = [
-  "Laptop is mandatory for participation",
-  "Mobile phones, smart watches, and external devices are strictly prohibited",
-  "Internet usage is not allowed unless explicitly permitted by organizers",
-  "AI tools (ChatGPT, Copilot, Gemini, etc.) are strictly prohibited",
-  "Copying and pasting from any source is not allowed",
-  "Full-screen mode is mandatory; switching tabs or exiting full screen counts as a violation",
+  "Participants are allowed to use laptops and mobile phones and are responsible for bringing their own chargers and ensuring sufficient battery backup",
+  "Internet access is mandatory for participation",
+  "Organizers will NOT provide internet connectivity",
+  "Participants are solely responsible for arranging and bearing the cost of their own internet access (mobile data, hotspot, etc.)",
+  "Use of AI tools (ChatGPT, Copilot, Gemini, etc.) is strictly prohibited",
+  "Copying or pasting from any external source is not allowed",
+  "Participants must remain in full-screen mode; switching tabs or exiting full screen counts as a violation",
   "Each prohibited action counts as one violation",
-  "Accumulating 10 violations leads to immediate disqualification",
-  "Any form of malpractice results in immediate disqualification",
+  "Accumulating 10 violations results in immediate disqualification",
+  "Any form of malpractice leads to immediate disqualification",
   "Judges’ and organizers’ decisions are final and binding",
 ];
+
+
 
 
 /* ------------------ COMPONENT ------------------ */
