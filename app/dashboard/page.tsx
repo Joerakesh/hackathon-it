@@ -12,6 +12,7 @@ import {
     MapPin, Building, GraduationCap, Download, Bell,
     ExternalLink, Trophy, ShieldAlert, Binary, Clock
 } from "lucide-react";
+import LoginPage from "../login/page";
 
 
 interface Participant {
@@ -68,6 +69,11 @@ export default function Dashboard() {
         fetchMe();
     }, [router]);
 
+    const handleLogout = () => {
+        localStorage.clear();
+        router.push("./login")
+    }
+
     if (loading) return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-[#0c0c0f] text-purple-500">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
@@ -88,7 +94,7 @@ export default function Dashboard() {
                         </div>
                         <h1 className="text-lg text-white tracking-tighter text-white">GLITCH <span className="text-purple-500">FIX</span></h1>
                     </div>
-                    <button onClick={() => router.push('/logout')} className="text-xs font-bold text-gray-500 hover:text-red-400 transition-colors flex items-center gap-2">
+                    <button onClick={handleLogout} className="text-xs font-bold text-gray-500 hover:text-red-400 transition-colors flex items-center gap-2">
                         <LogOut size={14} /> LOGOUT
                     </button>
                 </div>
