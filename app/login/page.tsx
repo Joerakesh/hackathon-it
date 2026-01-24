@@ -7,6 +7,7 @@ import { LuEye, LuEyeOff } from "react-icons/lu";
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
@@ -41,7 +42,6 @@ export default function LoginPage() {
     };
 
 
-    const [showPassword, setShowPassword] = useState(false);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#0d0d0d] p-6">
