@@ -7,11 +7,29 @@ export async function DELETE(
   req: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  await connect();
+  try {
+    await connect();
 
-  const { id } = await context.params; // ✅ unwrap params
+    const { id } = await context.params;
 
-  await Participant.findByIdAndDelete(id);
+    const participant = await Participant.findByIdAndDelete(id);
 
-  return NextResponse.json({ success: true });
+    if (!participant) {
+      return NextResponse.json(
+        { error: "Participant not found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Participant ${id} deleted successfully`,
+    });
+  } catch (error) {
+    console.error("Delete participant error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error during deletion" },
+      { status: 500 },
+    );
+  }
 }

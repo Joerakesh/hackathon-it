@@ -56,7 +56,7 @@ Content-Transfer-Encoding: 7bit
   </p>
 
   <div style="background:#fef3c7;padding:14px;border-radius:8px;margin:16px 0;">
-    <strong>Payment Pending:</strong> ₹250<br/>
+    <strong>Payment Pending:</strong> ₹300<br/>
     <strong>UPI ID:</strong> 7094594221@naviaxis<br/>
     <strong>Transaction Note:</strong> ${participantId}
   </div>
