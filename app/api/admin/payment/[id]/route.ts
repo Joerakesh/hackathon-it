@@ -36,30 +36,37 @@ export async function PUT(req: NextRequest, context: RouteContext) {
   }
 
   /* ---------- UPDATE PAYMENT STATUS ---------- */
-  if (action === "approve") {
-    participant.payment.status = "approved";
-  } else if (action === "reject") {
-    participant.payment.status = "rejected";
-  } else {
-    participant.payment.status = "pending";
-  }
-
+  participant.payment.status =
+    action === "approve"
+      ? "approved"
+      : action === "reject"
+        ? "rejected"
+        : "pending";
   participant.payment.updatedAt = new Date();
   await participant.save();
 
   /* ---------- EMAIL ONLY FOR APPROVE / REJECT ---------- */
   if (action === "approve" || action === "reject") {
+    // FIX: Accessing nested leader data
+    const recipientEmail = participant.leader.email;
+    const leaderName = participant.leader.name;
+    const displayId = participant.participantId; // Use the formatted ID (SHCCSGF003)
+
     const boundary = "PaymentBoundary123";
     let attachmentsBlock = "";
 
     if (action === "approve") {
-      const rulesPath = path.join(process.cwd(), "public/docs/rules.pdf");
-      const schedulePath = path.join(process.cwd(), "public/docs/schedule.pdf");
+      try {
+        const rulesPath = path.join(process.cwd(), "public/docs/rules.pdf");
+        const schedulePath = path.join(
+          process.cwd(),
+          "public/docs/schedule.pdf",
+        );
 
-      const rulesBase64 = fs.readFileSync(rulesPath).toString("base64");
-      const scheduleBase64 = fs.readFileSync(schedulePath).toString("base64");
+        const rulesBase64 = fs.readFileSync(rulesPath).toString("base64");
+        const scheduleBase64 = fs.readFileSync(schedulePath).toString("base64");
 
-      attachmentsBlock = `
+        attachmentsBlock = `
 --${boundary}
 Content-Type: application/pdf
 Content-Transfer-Encoding: base64
@@ -72,37 +79,30 @@ Content-Type: application/pdf
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="schedule.pdf"
 
-${scheduleBase64}
-`;
+${scheduleBase64}`;
+      } catch (err) {
+        console.error("PDF Attachment Error:", err);
+        // Continue without attachments if files are missing
+      }
     }
 
     const htmlBody =
       action === "approve"
-        ? `
-          <h2>Payment Approved ✅</h2>
-          <p>Hi <strong>${participant.name}</strong>,</p>
-          <p>Your payment of <strong>₹${participant.payment.amount}</strong> has been approved.</p>
-          <p><strong>Participant ID:</strong> ${participant._id}</p>
+        ? `<h2>Payment Approved ✅</h2>
+          <p>Hi <strong>${leaderName}</strong>,</p>
+          <p>Your payment for <strong>${participant.event}</strong> has been approved.</p>
+          <p><strong>Participant ID:</strong> ${displayId}</p>
           <p>📍 Venue: Sacred Heart College</p>
-          <p>📅 Date: February 6</p>
-          <p style="color:#991b1b;font-weight:bold;">
-            ⚠️ Bring your laptop. No mobile phones allowed.
-          </p>
-        `
-        : `
-          <h2>Payment Rejected ❌</h2>
-          <p>Hi <strong>${participant.name}</strong>,</p>
+          <p>📅 Date: February 6, 2026</p>
+          <p style="color:#991b1b;font-weight:bold;">⚠️ Bring your laptop. No mobile phones allowed.</p>`
+        : `<h2>Payment Rejected ❌</h2>
+          <p>Hi <strong>${leaderName}</strong>,</p>
           <p>Your payment of <strong>₹${participant.payment.amount}</strong> could not be approved.</p>
-          <p>Please contact support if this is a mistake.</p>
-        `;
+          <p>Please contact support if this is a mistake.</p>`;
 
     const rawEmail = `From: ${process.env.AWS_SES_SENDER}
-To: ${participant.email}
-Subject: ${
-      action === "approve"
-        ? "Payment Approved – GLITCH FIX Registration Confirmed"
-        : "Payment Rejected – GLITCH FIX"
-    }
+To: ${recipientEmail}
+Subject: ${action === "approve" ? "Confirmed: GLITCH FIX Registration" : "Update: GLITCH FIX Payment Rejected"}
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary="${boundary}"
 
@@ -111,24 +111,24 @@ Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 
 ${htmlBody}
-${attachmentsBlock}
---${boundary}--
-`;
 
-    await sesClient.send(
-      new SendRawEmailCommand({
-        RawMessage: {
-          Data: Buffer.from(rawEmail),
-        },
-      }),
-    );
+${attachmentsBlock}
+--${boundary}--`;
+
+    try {
+      await sesClient.send(
+        new SendRawEmailCommand({
+          RawMessage: { Data: Buffer.from(rawEmail) },
+        }),
+      );
+    } catch (emailErr) {
+      console.error("SES Error:", emailErr);
+      // We don't return error here because the DB update already succeeded
+    }
   }
 
   return NextResponse.json({
-    message:
-      action === "pending"
-        ? "Payment set to pending"
-        : `Payment ${action}d successfully`,
+    message: `Payment status updated to ${action}`,
     payment: participant.payment,
   });
 }
