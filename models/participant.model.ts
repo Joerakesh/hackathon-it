@@ -4,19 +4,27 @@ import Counter from "./counter.model";
 
 /* ------------------ TYPES ------------------ */
 
-export interface ParticipantDocument extends Document {
-  participantId: string;
-
+export interface TeamMember {
   name: string;
+  phoneNumber: string;
+  email: string;
+}
+
+export interface Leader extends TeamMember {
   college: string;
   department: string;
   city: string;
-  phoneNumber: string;
-  email: string;
   password: string;
+}
+
+export interface ParticipantDocument extends Document {
+  participantId: string;
+
+  leader: Leader;
+  member: TeamMember;
 
   event: "GLITCH FIX";
-  participationType: "Individual";
+  participationType: "Team";
   role: "participant" | "admin";
 
   payment: {
@@ -31,36 +39,27 @@ export interface ParticipantDocument extends Document {
   updatedAt: Date;
 }
 
-/* ------------------ SCHEMAS ------------------ */
+/* ------------------ SUB SCHEMAS ------------------ */
 
-const PaymentSchema = new Schema(
+const TeamMemberSchema = new Schema(
   {
-    amount: { type: Number, required: true, default: 250 },
-    status: {
+    name: { type: String, required: true, trim: true },
+    phoneNumber: { type: String, required: true },
+    email: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
       required: true,
+      lowercase: true,
+      trim: true,
     },
-    updatedAt: { type: Date, default: Date.now },
   },
   { _id: false },
 );
 
-const ParticipantSchema = new Schema<ParticipantDocument>(
+const LeaderSchema = new Schema(
   {
-    participantId: {
-      type: String,
-      unique: true,
-      index: true,
-    },
-
     name: { type: String, required: true, trim: true },
-
     college: { type: String, required: true, trim: true, index: true },
-
     department: { type: String, required: true, trim: true, index: true },
-
     city: { type: String, required: true, trim: true },
 
     phoneNumber: { type: String, required: true, unique: true },
@@ -74,12 +73,54 @@ const ParticipantSchema = new Schema<ParticipantDocument>(
     },
 
     password: { type: String, required: true, select: false },
+  },
+  { _id: false },
+);
 
-    event: { type: String, default: "GLITCH FIX", immutable: true },
+const PaymentSchema = new Schema(
+  {
+    amount: { type: Number, required: true },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+      required: true,
+    },
+    updatedAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
+/* ------------------ MAIN SCHEMA ------------------ */
+
+const ParticipantSchema = new Schema<ParticipantDocument>(
+  {
+    participantId: {
+      type: String,
+      unique: true,
+      index: true,
+    },
+
+    leader: {
+      type: LeaderSchema,
+      required: true,
+    },
+
+    member: {
+      type: TeamMemberSchema,
+      required: false,
+    },
+
+    event: {
+      type: String,
+      default: "GLITCH FIX",
+      immutable: true,
+    },
 
     participationType: {
       type: String,
-      default: "Individual",
+      enum: ["Team"],
+      default: "Team",
       immutable: true,
     },
 
@@ -89,37 +130,44 @@ const ParticipantSchema = new Schema<ParticipantDocument>(
       default: "participant",
     },
 
-    payment: { type: PaymentSchema, required: true },
+    payment: {
+      type: PaymentSchema,
+      required: true,
+    },
   },
   { timestamps: true },
 );
 
 /* ------------------ MIDDLEWARE ------------------ */
 
-// 🔐 Hash password
+// 🔐 Auto participantId + hash leader password
 ParticipantSchema.pre("save", async function (next) {
-  const user = this as ParticipantDocument;
+  const doc = this as ParticipantDocument;
 
-  if (user.isNew) {
+  // Generate participantId
+  if (doc.isNew) {
     const counter = await Counter.findByIdAndUpdate(
       { _id: "participant" },
       { $inc: { seq: 1 } },
       { new: true, upsert: true },
     );
 
-    user.participantId = `SHCCSGF${String(counter.seq).padStart(3, "0")}`;
+    doc.participantId = `SHCCSGF${String(counter.seq).padStart(3, "0")}`;
   }
 
-  if (!user.isModified("password")) return next();
+  // Hash leader password only
+  if (!doc.isModified("leader.password")) return next();
 
-  user.password = await bcrypt.hash(user.password, 10);
+  doc.leader.password = await bcrypt.hash(doc.leader.password, 10);
   next();
 });
 
 /* ------------------ METHODS ------------------ */
 
-ParticipantSchema.methods.comparePassword = async function (candidate: string) {
-  return bcrypt.compare(candidate, this.password);
+ParticipantSchema.methods.comparePassword = function (
+  candidate: string,
+): Promise<boolean> {
+  return bcrypt.compare(candidate, this.leader.password);
 };
 
 /* ------------------ MODEL ------------------ */

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { connect } from "@/dbconfig/db";
 import Participant from "@/models/participant.model";
@@ -17,18 +16,20 @@ export async function POST(req: Request) {
       );
     }
 
-    // Include password explicitly
-    const user = await Participant.findOne({ email }).select("+password");
+    // ✅ Correct path + include hidden password
+    const participant = await Participant.findOne({
+      "leader.email": email.toLowerCase(),
+    }).select("+leader.password");
 
-    if (!user || !user.password) {
+    if (!participant) {
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 },
       );
     }
 
-    // ✅ bcrypt directly (NO schema method)
-    const isMatch = await bcrypt.compare(password, user.password);
+    // ✅ Use schema method
+    const isMatch = await participant.comparePassword(password);
 
     if (!isMatch) {
       return NextResponse.json(
@@ -37,9 +38,14 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ Stronger token payload
     const token = jwt.sign(
-      { participantId: user._id },
-      process.env.JWT_SECRET as string,
+      {
+        id: participant._id,
+        participantId: participant.participantId,
+        role: participant.role,
+      },
+      process.env.JWT_SECRET!,
       { expiresIn: "7d" },
     );
 
@@ -47,10 +53,12 @@ export async function POST(req: Request) {
       {
         message: "Login successful",
         participant: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          paymentStatus: user.payment.status,
+          id: participant._id,
+          participantId: participant.participantId,
+          name: participant.leader.name,
+          email: participant.leader.email,
+          role: participant.role,
+          paymentStatus: participant.payment.status,
         },
       },
       { status: 200 },
